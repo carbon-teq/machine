@@ -1,0 +1,97 @@
+---
+description: Teaching architecture for math and ML notes
+alwaysApply: true
+---
+
+# Math + ML Teaching Architecture
+
+This rule governs creation and editing of learning content in `web/content/docs/`.
+
+## Core Philosophy: "The Guide, Not The Textbook"
+
+We are not writing a textbook. Textbooks are for reference. We are writing a **guide**.
+A guide anticipates confusion, builds intuition before definition, and constantly answers the question: *"Why are we doing this?"*
+
+**Crucial:** Never jump straight into mathematical notation. Notation is just a symbolic representation of a concept we have already established. We must *earn* the right to use a formula by first building the intuition that demands it.
+
+**Discovery First:** The reader should feel like they are *arriving at the idea*, not being handed a finished summary. Let them run into a wall, notice what is missing, and want the next concept before we name it.
+
+**Aspirational Before Defensive:** Lead with the capability or possibility we want, then explain why the math makes it possible. Avoid opening sections with cautious justification when a more forward-moving framing would help the reader feel momentum.
+
+## 1. The Narrative Arc (Invisible Structure)
+
+Every concept lesson must follow a specific logical flow, but **NEVER use these phase names as section headings**. The content should flow naturally from one idea to the next.
+
+### Phase 1: The Hook (The "Why")
+*   **Goal:** Create a need for the concept before introducing it.
+*   **Technique:** Start with a **concrete, human problem**, not a mathematical abstraction.
+    *   *Bad:* "Let's look at an AND gate."
+    *   *Good:* "How do you decide whether to go to a music festival? It depends on the ticket price and the weather."
+*   **Constraint:** Do not mention the mathematical term yet.
+*   **Better pattern:** Let the reader try the obvious move first, see why it fails or falls short, and then feel the need for the new idea.
+
+### Phase 2: The Geometric Intuition (The "Show")
+*   **Goal:** Visualize the concept in space.
+*   **Technique:** Use interactive visualizations (Manim) or clear diagrams *before* showing formulas.
+*   **Constraint:** No formulas yet. Only shapes, movements, and relationships.
+*   **Key:** "Wiggle the line" - show what happens when parameters change.
+*   **Discovery move:** Use "What if we could..." questions to create desire for the next concept before introducing it.
+
+### Phase 3: The Formal Notation (The "How")
+*   **Goal:** Derive the formula from the intuition.
+*   **Technique:** Introduce symbols *as labels* for the things we just visualized.
+    *   *Bad:* "The formula is $z = w \cdot x + b$."
+    *   *Good:* "We need a way to represent the importance of the weather. Let's call this weight $w_1$. Now, if we multiply the weather condition ($x_1$) by its importance ($w_1$)..."
+*   **Requirement:** Use a **Symbol Dictionary** or clear list to define every variable.
+*   **Narrative rule:** The formula should feel like the natural next sentence, not like a topic switch.
+*   **Formatting:** Use standard LaTeX.
+    *   **Vectors:** Column vectors $\begin{bmatrix} x \\ y \end{bmatrix}$ (preferred over row vectors).
+    *   **Matrices:** $\mathbf{A}$.
+    *   **Scalars:** $c, \lambda$.
+
+### Phase 4: The Mechanics (Worked Example)
+*   **Goal:** Show the machinery in action.
+*   **Technique:** A simple, concrete calculation with small, clean numbers.
+*   **Constraint:** Walk through the steps. Don't just show the result.
+
+### Phase 5: The Application (Real-World & ML)
+*   **Goal:** Ground the abstract math in reality.
+*   **Technique 1 (Real World):** A non-CS example (physics, economics, biology).
+*   **Technique 2 (ML Relevance):** A specific callout box explaining exactly where this math fits in the ML pipeline (e.g., "This is how a neuron computes its output").
+
+## 2. Writing Style Guidelines
+
+### Tone
+*   **Conversational but rigorous.** Use "We," "Let's," "Imagine."
+*   **Active voice.** "The vector moves..." not "The vector is moved..."
+*   **Flow.** Avoid abrupt transitions. Use connective phrases like "Now that we have X, let's look at Y."
+*   **No Meta-Commentary.** Don't say "Now we will look at the geometric intuition." Just say "Let's draw this out."
+*   **Make the reader feel the discovery.** Prefer "What if we could..." / "Here is the snag..." / "This is the moment..." over dry exposition.
+*   **Avoid defensive framing.** Prefer possibility-driven language over justification-heavy language.
+    *   *Less effective:* "Before using activation functions, we should ask whether non-linearity is needed."
+    *   *Better:* "If we want to bend space instead of just shifting it, we need some non-linearity in the system."
+*   **Avoid glossary-first writing.** Do not open with taxonomy. First make the role of the idea feel necessary.
+
+### Formatting
+*   **Math:** ALWAYS use LaTeX (`$ ... $` for inline, `$$ ... $$` for block).
+    *   *Bad:* `v = [1, 2]`
+    *   *Good:* $\mathbf{v} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$
+*   **Emphasis:** Use **bold** for new terms. Use *italics* for emphasis.
+*   **Callouts:** Use `> [!TIP]` or `> [!NOTE]` for the ML Relevance section.
+
+### Visuals
+*   **Interactive:** Prioritize `manim-web` components for dynamic concepts.
+*   **Static Images:** Use Mermaid or SVG diagrams for structural concepts.
+*   **Exploration:** Link to Marimo notebooks for deep dives.
+
+## 3. Quality Checklist
+
+Before finalizing any lesson, ask:
+1.  [ ] Did I start with a human problem, not a math problem?
+2.  [ ] Did I avoid meta-headings like "The Hook" or "Geometric Intuition"?
+3.  [ ] Did I *show* the concept visually before defining the formula?
+4.  [ ] Is the notation introduced as a symbolic shorthand for the intuition, rather than a standalone fact?
+5.  [ ] Is the notation professional (LaTeX column vectors)?
+6.  [ ] Did I explicitly connect this to Machine Learning?
+7.  [ ] Does the reader feel like they discovered why the concept is needed?
+8.  [ ] Is the tone aspirational and possibility-driven rather than defensive?

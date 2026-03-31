@@ -1,0 +1,108 @@
+---
+title: The Perceptron
+description: The fundamental building block of neural networks.
+---
+
+import MarimoEmbed from '@/components/interactive/MarimoEmbed';
+
+# The Perceptron
+
+How do you decide whether to go to a music festival?
+
+It's rarely a random choice. You probably weigh a few factors:
+1.  **Is the weather good?** (Let's call this $x_1$)
+2.  **Is the ticket affordable?** (Let's call this $x_2$)
+
+If the weather is great ($x_1=1$) and the ticket is cheap ($x_2=1$), you go.
+If it's raining ($x_1=0$) and expensive ($x_2=0$), you stay home.
+
+But what if it's mixed? Maybe you love this band so much that the weather doesn't matter. Or maybe you're broke, so the price is the only thing that stops you.
+
+To model this decision mathematically, we need two things:
+1.  **Weights ($w$):** How important is each factor?
+    *   If you hate rain, the *weather weight* ($w_1$) should be high.
+    *   If you're rich, the *price weight* ($w_2$) might be low.
+2.  **Threshold ($b$):** What's your tipping point?
+    *   Even if the factors are okay, maybe you need a lot of convincing to leave the house.
+
+## Modeling a Decision
+
+Let's try to build a machine that makes this decision for us. We want it to output **1 (Go)** only when *both* conditions are met (Good Weather AND Cheap Ticket). In logic, this is called an **AND gate**.
+
+*   (0, 0) $\rightarrow$ Don't Go (0)
+*   (0, 1) $\rightarrow$ Don't Go (0)
+*   (1, 0) $\rightarrow$ Don't Go (0)
+*   (1, 1) $\rightarrow$ **Go (1)**
+
+### Visualizing the Decision Boundary
+
+Instead of just looking at numbers, let's look at this geometrically.
+We can plot our four possible scenarios as points on a graph.
+*   **Red Dots:** Scenarios where you stay home.
+*   **Green Dot:** The scenario where you go.
+
+Your goal is to find a "rule" that separates the Green dot from the Red dots. In a perceptron, this rule is a **straight line**.
+
+<MarimoEmbed
+  notebookPath="/notebooks/neural_networks/perceptron_scenarios/index.html"
+  title="Perceptron Scenario Explorer"
+  height="900px"
+/>
+
+**Try this:**
+1.  Click **Sunny + Cheap (1,1)** first. The starred point is the active lesson example, and you can see its live score/output update below the plot.
+2.  Move the **Bias ($b$)** slider. Notice how it shifts the line up and down. This changes your "threshold" for saying yes.
+3.  Move the **Weights ($w_1, w_2$)**. Notice how they rotate the line. This changes how much you care about each factor.
+4.  **Challenge:** Can you find a setting where the line perfectly separates the Green dot from the Red dots?
+    *   *Hint:* Try setting both weights to roughly $1.0$ and the bias to $-1.5$.
+
+If you want to run or edit it locally:
+- Open notebook: `uv run marimo edit web/public/notebooks/neural_networks/perceptron_scenarios.py`
+- Re-export static embed: `uv run --with marimo --with numpy --with plotly marimo export html-wasm web/public/notebooks/neural_networks/perceptron_scenarios.py -o web/public/notebooks/neural_networks/perceptron_scenarios --mode run --no-show-code -f`
+- Download source: [Perceptron Notebook](/notebooks/neural_networks/perceptron_scenarios.py)
+
+## The Math Behind the Line
+
+What you just did visually is exactly what a **Perceptron** does mathematically.
+
+The line you drew represents the **Decision Boundary**.
+*   Everything on one side of the line is a **1** (Go).
+*   Everything on the other side is a **0** (Stay).
+
+We calculate a "score" ($z$) by multiplying each input by its weight and adding the bias:
+
+$$
+z = w_1 x_1 + w_2 x_2 + b
+$$
+
+Then, we apply a simple rule (called the **Step Function**):
+
+$$
+\text{Output} = \begin{cases} 
+1 & \text{if } z > 0 \\
+0 & \text{if } z \leq 0 
+\end{cases}
+$$
+
+### Symbol Dictionary
+
+| Symbol | Name | Intuition |
+| :--- | :--- | :--- |
+| $x$ | **Input** | The factors (Weather, Price). |
+| $w$ | **Weight** | The importance of each factor. |
+| $b$ | **Bias** | The threshold. (Think of it as how easy it is to get you to say "Yes"). |
+| $z$ | **Weighted Sum** | The total "score" of the situation. |
+| $\hat{y}$ | **Output** | The final decision (0 or 1). |
+
+## Why "Bias"?
+
+You might wonder why we add $b$ instead of just checking if $w_1 x_1 + w_2 x_2 > \text{Threshold}$.
+Mathematically, they are the same!
+$$w_1 x_1 + w_2 x_2 > T \iff w_1 x_1 + w_2 x_2 - T > 0$$
+By renaming $-T$ to $+b$, we make the math cleaner. A bias is just a threshold that we learn, exactly like a weight.
+
+> [!NOTE]
+> **ML Relevance:**
+> This simple "multiply-add-threshold" structure is the ancestor of every modern neural network.
+> *   A single perceptron is a **Linear Classifier**.
+> *   ChatGPT is just billions of these perceptrons stacked together in layers.

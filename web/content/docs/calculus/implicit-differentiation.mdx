@@ -1,0 +1,72 @@
+---
+title: Implicit Differentiation
+description: Finding the slope when variables are tangled together.
+---
+
+import ImplicitDiffVis from '@/components/interactive/calculus/ImplicitDiffVis';
+
+# Implicit Differentiation: The Tangled Knot
+
+Usually, we see functions that are "explicit." They tell you exactly how to get $y$ from $x$.
+$$ y = x^2 + 3x $$
+This is like a recipe: "Take $x$, square it, add $3x$, and you get $y$." Finding the slope ($\frac{dy}{dx}$) is easy.
+
+But what if the variables are tangled together?
+$$ x^2 + y^2 = 25 $$
+This is the equation of a circle. It's not a function (it fails the vertical line test). $y$ isn't isolated. It's "implicitly" defined by the relationship.
+
+<ImplicitDiffVis />
+
+How do we find the slope of the tangent line at a point on this circle? We can't just use the power rule on $x$ because $y$ is stuck in there too.
+
+## The Intuition: Everything Moves with Time
+
+Imagine a particle moving along this circle. Its position $(x, y)$ changes over time $t$.
+This means $x$ is a function of time ($x(t)$) and $y$ is a function of time ($y(t)$).
+
+If we want to find the slope $\frac{dy}{dx}$, we are really asking:
+**"How fast is $y$ changing relative to $x$?"**
+
+Since the equation $x^2 + y^2 = 25$ is always true for every point on the path, the **rate of change** of the left side must equal the rate of change of the right side.
+
+## The Technique: Differentiating Both Sides
+
+We treat $y$ not as a variable, but as a **function of x** ($y(x)$).
+Then we apply the derivative operator $\frac{d}{dx}$ to the whole equation.
+
+**Equation:**
+$$ x^2 + y^2 = 25 $$
+
+**Step 1: Differentiate the Left Side**
+*   $\frac{d}{dx}(x^2) = 2x$ (Standard Power Rule)
+*   $\frac{d}{dx}(y^2) = \dots$ Wait! $y$ is a function of $x$. We need the **Chain Rule**.
+    *   Outside: $y^2 \to 2y$
+    *   Inside: $y \to \frac{dy}{dx}$
+    *   Result: $2y \cdot \frac{dy}{dx}$
+
+**Step 2: Differentiate the Right Side**
+*   $\frac{d}{dx}(25) = 0$ (The derivative of a constant is 0).
+
+**Step 3: Put it together**
+$$ 2x + 2y \frac{dy}{dx} = 0 $$
+
+**Step 4: Solve for the Slope ($\frac{dy}{dx}$)**
+$$ 2y \frac{dy}{dx} = -2x $$
+$$ \frac{dy}{dx} = -\frac{2x}{2y} = -\frac{x}{y} $$
+
+We found the slope! Notice that the slope depends on **both** $x$ and $y$. This makes sense—a circle has two points for every $x$ (top and bottom), and they have different slopes.
+
+## AI/ML Relevance
+
+<Callout title="Constraint Optimization" type="tip">
+In Machine Learning, we often want to minimize a loss function subject to a constraint (e.g., "Find the weights that minimize error, but keep the total weight vector length equal to 1").
+
+This constraint ($||\mathbf{w}||^2 = 1$) is an **implicit equation**.
+When we use techniques like **Lagrange Multipliers** to solve this, we are essentially doing implicit differentiation to find where the "slope" of the loss function aligns with the "slope" of the constraint surface.
+</Callout>
+
+<img src="/images/calculus/implicit-differentiation.png" alt="Tangent line on a circle" width="100%" />
+
+## Interactive Playground
+
+[Interactive Marimo Notebook: Tangent on a Circle](/notebooks/implicit-differentiation)

@@ -1,0 +1,302 @@
+---
+title: Gradient Descent
+description: Why training becomes a landscape-navigation problem.
+---
+
+import MarimoEmbed from '@/components/interactive/MarimoEmbed';
+
+# Gradient Descent
+
+We have seen how a perceptron turns inputs into a prediction. Training asks a different question:
+
+**Among all possible settings of the weights, which one gives predictions closest to reality?**
+
+Suppose we want to predict apartment rent from a few features:
+
+- floor area
+- distance from downtown
+- building age
+
+A natural first model is to let each feature cast a vote, then add those votes together:
+
+$$
+\hat{y} = w_1 x_1 + w_2 x_2 + \cdots + w_n x_n + b
+$$
+
+This does **not** mean the real world is perfectly linear. It means we are starting with the simplest useful idea:
+
+- each input contributes something
+- some inputs matter more than others
+- the weights control how strong each contribution is
+- the bias sets a baseline
+
+If apartment size matters more than building age, its weight should be larger. If there is a baseline rent before we account for any feature, the bias captures that baseline.
+
+## Each Weight Setting Is a Different Model
+
+The dataset stays fixed. The parameters are the knobs we can turn.
+
+Pick one set of weights and bias, and you get one prediction rule. Pick a different set, and you get a different rule.
+
+For a one-feature model,
+
+$$
+\hat{y} = wx + b
+$$
+
+every pair $(w, b)$ gives a different line. Some lines fit the data well. Some miss badly.
+
+That is the real training problem:
+
+**searching through many possible lines, planes, or decision boundaries until we find one that predicts well.**
+
+## Why We Need Loss
+
+At first, you might hope training is just solving a clean system of equations. In tiny toy examples, that can happen. But real data is noisy:
+
+- two similar apartments can rent for different prices
+- measurements can be imperfect
+- one simple line usually cannot hit every point exactly
+
+So training is usually **not** about finding an exact rule that satisfies every example perfectly.
+
+Instead, we ask a softer question:
+
+**How wrong is this particular choice of weights overall?**
+
+That score is called the **loss**.
+
+For one data point, a simple loss is squared error:
+
+$$
+J = (y - \hat{y})^2
+$$
+
+For a whole dataset with $m$ examples, we often average:
+
+$$
+J(\mathbf{w}, b) = \frac{1}{m} \sum_{i=1}^{m} \left(y_i - \hat{y}_i\right)^2
+$$
+
+Now the training question becomes:
+
+**Which parameter setting makes this loss as small as possible?**
+
+## From Models to a Landscape
+
+Here is the key shift in perspective.
+
+Keep the dataset fixed. Now imagine trying many values of the parameters.
+
+For each choice of $\mathbf{w}$ and $b$:
+
+1. Build the corresponding model.
+2. Run it on the dataset.
+3. Measure the loss.
+
+That means every parameter setting gets a single score. If we plot that score as a height, parameter space turns into a landscape:
+
+- your position is the current parameter setting
+- height is the loss
+- high regions mean bad predictions
+- low regions mean better predictions
+
+For one parameter, the landscape is just a curve $J(w)$. For two parameters, it becomes a surface such as $J(w, b)$.
+
+Only now does the mountain metaphor make sense.
+
+Imagine standing in thick fog on that landscape. You cannot see the whole valley, but you can feel the local slope under your feet.
+
+Use the notebook below to connect the two views:
+
+- on the left, changing $w$ and $b$ gives a different line
+- on the right, that same choice becomes a point on the loss landscape
+
+<MarimoEmbed
+  notebookPath="/notebooks/neural_networks/models_to_landscape/index.html"
+  title="From Models to a Landscape"
+  height="820px"
+/>
+
+If you want to run or edit it locally:
+- Open notebook: `uv run marimo edit web/public/notebooks/neural_networks/models_to_landscape.py`
+- Re-export static embed: `uv run --with marimo --with numpy --with plotly marimo export html-wasm web/public/notebooks/neural_networks/models_to_landscape.py -o web/public/notebooks/neural_networks/models_to_landscape --mode run --no-show-code -f`
+- Download source: [Models to Landscape Notebook](/notebooks/neural_networks/models_to_landscape.py)
+
+## Feeling the Tilt
+
+Now that the loss landscape is in view, we can ask a more practical question:
+
+**If we are standing at one point on this surface, how do we know which way leads down?**
+
+This is exactly where calculus helps. Once the dataset is fixed, the loss is just an ordinary function of the parameters.
+
+For our simple model,
+
+$$
+\hat{y} = wx + b
+$$
+
+small changes in $w$ and $b$ create small changes in the predictions. And with a smooth loss such as squared error,
+
+$$
+J(\mathbf{w}, b) = \frac{1}{m} \sum_{i=1}^{m} \left(y_i - \hat{y}_i\right)^2
+$$
+
+small changes in the predictions create small, smooth changes in the loss.
+
+So the surface is not jagged or disconnected. It has a local tilt. And once a surface has a local tilt, we can ask the most useful question in optimization:
+
+**If I nudge the parameters a little, which direction makes the loss drop fastest?**
+
+For one parameter, the derivative tells us the local slope:
+
+- if the slope is positive, moving left lowers the loss
+- if the slope is negative, moving right lowers the loss
+- if the slope is near zero, we may be near a flat region or minimum
+
+With many parameters, we ask the same question in every coordinate at once. That collection of partial slopes is the **gradient**:
+
+$$
+\nabla J =
+\begin{bmatrix}
+\frac{\partial J}{\partial w_1} \\
+\frac{\partial J}{\partial w_2} \\
+\vdots \\
+\frac{\partial J}{\partial w_n} \\
+\frac{\partial J}{\partial b}
+\end{bmatrix}
+$$
+
+The gradient points in the direction of **steepest increase** in loss. That is what makes it so useful. If it tells us where loss rises fastest, then the opposite direction tells us the most promising local way to go down.
+
+> [!TIP]
+> The gradient is not a lucky trick. It works here because the loss changes smoothly as the parameters change. It gives us a reliable local downhill compass.
+
+## Taking a Step
+
+Once we know which way is downhill, training becomes repetitive in a good way: look at the local tilt, take a small step, check the new position, and repeat.
+
+For one parameter, that step looks like this:
+
+$$
+w_{\text{new}} = w_{\text{old}} - \alpha \frac{\partial J}{\partial w}
+$$
+
+For all parameters together, we do the same thing in vector form:
+
+$$
+\begin{bmatrix}
+w_1 \\
+w_2 \\
+\vdots \\
+w_n \\
+b
+\end{bmatrix}_{\text{new}}
+=
+\begin{bmatrix}
+w_1 \\
+w_2 \\
+\vdots \\
+w_n \\
+b
+\end{bmatrix}_{\text{old}}
+- \alpha \nabla J
+$$
+
+This is the heart of **Gradient Descent**: do not guess wildly, do not solve the whole problem in one leap, just keep making informed downhill steps.
+
+### Symbol Dictionary
+
+| Symbol | Name | Intuition |
+| :--- | :--- | :--- |
+| $x_i$ | **Input feature** | One measured fact about example $i$. |
+| $y_i$ | **True target** | The real answer we want the model to match. |
+| $\hat{y}_i$ | **Prediction** | What the current model predicts for example $i$. |
+| $w_j$ | **Weight** | How strongly feature $j$ influences the prediction. |
+| $b$ | **Bias** | The baseline shift before the features add their effect. |
+| $J$ | **Loss** | The overall wrongness of the current parameter setting. |
+| $\nabla J$ | **Gradient** | The collection of local slopes telling us how loss changes as we move the parameters. |
+| $\alpha$ | **Learning rate** | How big a downhill step we take each update. |
+
+## Watching One Weight Move
+
+Let’s watch one of those steps happen in slow motion.
+
+Use a one-feature model:
+
+$$
+\hat{y} = wx + b, \qquad J = (y - \hat{y})^2
+$$
+
+If we nudge the weight $w$, the prediction changes. When the prediction changes, the loss changes too. The chain rule lets us follow that ripple from parameter to prediction to loss:
+
+$$
+\frac{\partial J}{\partial w}
+=
+\frac{\partial J}{\partial \hat{y}}
+\cdot
+\frac{\partial \hat{y}}{\partial w}
+$$
+
+Now fill in the two pieces:
+
+$$
+\frac{\partial J}{\partial \hat{y}} = -2(y - \hat{y}),
+\qquad
+\frac{\partial \hat{y}}{\partial w} = x
+$$
+
+So:
+
+$$
+\frac{\partial J}{\partial w} = -2(y - \hat{y})x
+$$
+
+Put that slope into the step rule:
+
+$$
+w_{\text{new}}
+=
+w_{\text{old}} - \alpha \left(-2(y - \hat{y})x\right)
+=
+w_{\text{old}} + 2\alpha(y - \hat{y})x
+$$
+
+Now the update starts to feel intuitive:
+
+- if the prediction error is large, the update is large
+- if the feature value $x$ is large, that weight gets pushed more strongly
+
+## Interactive Lab
+
+The right visual for this lesson is not just a ball rolling down a hill. The reader first needs to see how changing parameters changes the model itself.
+
+### Planned Interactive Components
+
+**1. Marimo Notebook: Line Fitting to Loss Landscape**
+*   **Visual:** A one-feature dataset with a line $\hat{y} = wx + b$ drawn on top.
+*   **Interaction:** Sliders for $w$ and $b$.
+*   **Feedback:** As the user moves the sliders, show residuals and the total loss updating live.
+*   **Bridge:** A second panel shows the matching point $(w, b)$ on the loss surface, so the reader sees how "changing the line" becomes "moving on the landscape."
+
+**2. Manim Animation: Local Slope to Downhill Step**
+*   **Visual:** A contour plot or bowl-shaped surface for $J(w, b)$.
+*   **Action:** Place a point at a random parameter setting.
+*   **Animation:** Show the gradient arrow pointing uphill and the update step pointing downhill.
+*   **Detail:** Compare three learning rates so the reader sees slow progress, healthy convergence, and overshooting.
+
+## Why This Matters in ML
+
+> [!NOTE]
+> In machine learning, we usually cannot hand-pick millions or billions of parameters. Gradient descent turns training into a repeatable procedure:
+> define a loss, measure how the parameters affect it, step downhill, repeat.
+
+From linear regression to large neural networks, this is the core optimization idea.
+
+## Key Questions
+
+- **Why use weights at all?** They let the model express how strongly each input should matter.
+- **Why not just solve exact equations?** Real data is noisy, so we usually optimize overall error instead.
+- **Why does a loss landscape exist?** Because every parameter setting produces a measurable total error.
+- **Why move opposite the gradient?** Because the gradient points toward steepest increase, so the negative gradient points downhill.

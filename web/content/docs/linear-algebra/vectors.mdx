@@ -1,0 +1,97 @@
+---
+title: Vectors
+description: More than just arrows—the language of movement and data.
+---
+
+import VectorVis from '@/components/interactive/linear-algebra/VectorVis';
+
+# Vectors: The Language of Movement
+
+In traditional geometry, we often talk about **points**. A point like $(3, 2)$ is a fixed address—a specific location on a grid. It sits there, static and unmoving.
+
+Linear algebra asks us to shift our perspective. Instead of thinking about *where* something is, we think about *how to get there*.
+
+Imagine you are standing at the origin $(0, 0)$. To get to the point $(3, 2)$, you need an instruction: "Move 3 units East, and 2 units North."
+
+This instruction is a **vector**.
+
+<VectorVis />
+
+$$
+\mathbf{v} = \begin{bmatrix} 3 \\ 2 \end{bmatrix}
+$$
+
+While the point $(3, 2)$ is a dot on the paper, the vector $\mathbf{v}$ is the **arrow** that carries you from the origin to that dot.
+
+You might ask: *"They use the same numbers. Why does it matter if I call it a point or a vector?"*
+
+It matters because **you can add vectors, but you cannot add points.** What is "Paris plus London"? It doesn't make sense. But "Walk 5 miles North" plus "Walk 3 miles East"? That makes perfect sense. It's a combined journey. By treating data as vectors (movements) instead of points (locations), we unlock the ability to do arithmetic on them. We can add them, stretch them, and combine them.
+
+## Notation and Magnitude
+
+Depending on who you talk to (a physicist, a computer scientist, or a mathematician), you might see vectors written differently. Don't let this confuse you—they all mean the same thing.
+
+### 1. The Column Vector (Our Default)
+In Linear Algebra, we almost always write vectors vertically. This is called a **column vector**.
+
+$$
+\mathbf{v} = \begin{bmatrix} x \\ y \end{bmatrix}
+$$
+
+We use bold, lowercase letters ($\mathbf{v}$) to distinguish vectors from single numbers (scalars). The vertical shape acts like a domino that "falls" into our calculations later on.
+
+### 2. The Row Vector (Computer Science)
+In programming (like Python lists or NumPy arrays), it's often easier to write things horizontally.
+
+$$
+\mathbf{v} = [x, y]
+$$
+
+While convenient for typing, be careful: in math, a row vector is technically the **Transpose** of a column vector ($\mathbf{v}^T$).
+
+### 3. Unit Vector Notation (Physics)
+Physicists often build vectors out of standard building blocks called **Unit Vectors**:
+*   $\hat{\imath}$ (pronounced "i-hat") is a step of length 1 in the x-direction.
+*   $\hat{\jmath}$ (pronounced "j-hat") is a step of length 1 in the y-direction.
+
+$$
+\mathbf{v} = 3\hat{\imath} + 2\hat{\jmath}
+$$
+
+This literally means: "3 steps of $i$ plus 2 steps of $j$." It emphasizes that a vector is a sum of component movements.
+
+### Magnitude (Length)
+Since a vector represents a movement, it has a specific **length**. If you walk 3 units East and 2 units North, how far have you actually traveled from the start? We call this the **Magnitude** (or norm) of the vector, written as $||\mathbf{v}||$. It's just the Pythagorean theorem in action:
+
+$$
+||\mathbf{v}|| = \sqrt{3^2 + 2^2} = \sqrt{9 + 4} = \sqrt{13} \approx 3.6
+$$
+
+<Callout title="Vectors as Data" type="tip">
+This geometric view—arrows in space—is beautiful. But why is it useful for Machine Learning? Because we can treat **any** list of attributes as a vector.
+
+Consider a house for sale. We can describe it with three numbers:
+1.  **Area:** 2000 sq ft
+2.  **Bedrooms:** 3
+3.  **Bathrooms:** 2
+
+We can stack these numbers into a vector:
+
+$$
+\mathbf{h} = \begin{bmatrix} 2000 \\ 3 \\ 2 \end{bmatrix}
+$$
+
+Now, this house is no longer just a row in a spreadsheet. It is a **geometric object**—an arrow pointing to a specific spot in a 3-dimensional "House Space."
+
+Once houses are vectors, we can calculate the **distance** between them. If the vector for House A is close to the vector for House B, they are similar. If they are far apart, they are different. This is exactly how **Recommendation Systems** work. Netflix treats you as a vector of your movie ratings. It finds other users whose vectors are "close" to yours and recommends what they watched.
+</Callout>
+
+import VectorIntuitionVis from '@/components/interactive/linear-algebra/VectorIntuitionVis';
+
+<VectorIntuitionVis />
+
+## Interactive Playground
+
+Use the interactive playground below to change a vector's numeric components and see how its geometric representation changes.
+
+[Open the Vectors Marimo Notebook](/notebooks/vectors)

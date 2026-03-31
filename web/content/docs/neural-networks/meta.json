@@ -1,0 +1,14 @@
+{
+  "title": "Neural Networks",
+  "pages": [
+    "perceptrons",
+    "linearity-limits",
+    "gradient-descent",
+    "activation-functions",
+    "forward-propagation",
+    "backpropagation",
+    "introduction-to-tensors-and-pytorch",
+    "training-execution",
+    "regression-vs-classification"
+  ]
+}

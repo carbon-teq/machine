@@ -1,0 +1,64 @@
+---
+title: Linear Combinations & Span
+description: The reachable universe of your vectors.
+---
+
+import LinearCombinationVis from '@/components/interactive/linear-algebra/LinearCombinationVis';
+
+# Linear Combinations: The Reachable Universe
+
+Now that we understand vectors as "movement instructions," let's ask a bigger question: **Where can we go?**
+
+Imagine a robot on an infinite 2D flatland. This robot is simple. It doesn't have a steering wheel. Instead, it has two buttons on its controller:
+
+1.  **Button A:** Executes movement vector $\mathbf{v}$ (Blue).
+2.  **Button B:** Executes movement vector $\mathbf{w}$ (Red).
+
+You can press these buttons as many times as you want (scaling). You can even press them backwards (negative scaling).
+
+Try it yourself below. Use the sliders to "press the buttons" ($c_1$ and $c_2$) and see where the robot ends up (Green).
+
+<LinearCombinationVis />
+
+The final position you reach is simply a weighted sum of the two vectors:
+
+$$
+\text{Destination} = c_1 \mathbf{v} + c_2 \mathbf{w}
+$$
+
+This expression—scaling vectors and adding them together—is called a **Linear Combination**.
+
+## Span: The Set of All Possibilities
+
+Here is the critical question: **Can this robot reach ANY point on the plane?**
+
+If I give you a target coordinate, say $\begin{bmatrix} 100 \\ -50 \end{bmatrix}$, can you find a combination of button presses ($c_1$ and $c_2$) to get there? The set of *all* possible locations the robot can reach is called the **Span** of vectors $\mathbf{v}$ and $\mathbf{w}$.
+
+In our robot example above, the vectors point in different directions. $\mathbf{v}$ gives us some "up" movement, and $\mathbf{w}$ gives us pure "right" movement. By mixing them, we can shimmy our way to **any** coordinate in the 2D plane. We say their Span is **all of $\mathbb{R}^2$**.
+
+But what if the robot was broken? Imagine **Button A** moves Right 1 ($\begin{bmatrix} 1 \\ 0 \end{bmatrix}$) and **Button B** moves Right 2 ($\begin{bmatrix} 2 \\ 0 \end{bmatrix}$). Notice that Button B is just a "stronger" version of Button A. It doesn't give us any *new* direction. No matter how many times you press these buttons, you can only move Left or Right. You can never move Up or Down. You are trapped on a single line. We say the Span of these vectors is just a **line**, not the whole plane. (Try the **"Broken Robot"** button in the interactive tool above to see this).
+
+## Formal Definition
+
+Given a set of vectors $\mathbf{v}_1, \mathbf{v}_2, ...$, a **Linear Combination** is any vector $\mathbf{y}$ that looks like:
+
+$$
+\mathbf{y} = c_1\mathbf{v}_1 + c_2\mathbf{v}_2 + ... + c_n\mathbf{v}_n
+$$
+
+The **Span** is the collection of all such possible $\mathbf{y}$ vectors.
+
+<Callout title="Why This Matters for AI" type="tip">
+This concept of "Reach" is fundamental to how Neural Networks "think."
+
+A layer in a neural network tries to take input features (vectors) and combine them to reach a meaningful answer.
+*   If the input features are **independent** (like our first robot), the network has a wide "Span"—it can represent complex patterns.
+*   If the input features are **dependent** (redundant, like the broken robot), the network is trapped. It has less "expressive power" because multiple inputs are saying the same thing.
+
+When we train a model, we are essentially asking: *"What are the right coefficients ($c_1, c_2$) to mix these inputs together and reach the correct answer?"*
+</Callout>
+
+
+## Interactive Playground
+
+[Interactive Marimo Notebook: Sweep the Plane](/notebooks/linear-combinations)

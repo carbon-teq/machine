@@ -1,0 +1,72 @@
+---
+title: Divergence and Curl
+description: Unpacking the Jacobian into two stories.
+---
+
+import MarimoEmbed from '@/components/interactive/MarimoEmbed';
+
+# Divergence and Curl
+
+We just learned about the **Jacobian Matrix**, which contains all the partial derivatives of a vector field.
+$$
+J_{\mathbf{F}} =
+\begin{bmatrix}
+\frac{\partial F_x}{\partial x} & \frac{\partial F_x}{\partial y} \\
+\frac{\partial F_y}{\partial x} & \frac{\partial F_y}{\partial y}
+\end{bmatrix}
+$$
+
+While the Jacobian gives us the *full* picture of local change, it is often too much information. We want to summarize it into simpler concepts.
+We can break the Jacobian down into two main "stories": **Divergence** and **Curl**.
+
+## 1. Divergence (The Trace)
+
+Divergence measures how much the vector field is **expanding** or **compressing** at a point.
+Mathematically, it is the **trace** of the Jacobian (the sum of the diagonal elements).
+
+$$
+\text{div}(\mathbf{F}) = \nabla \cdot \mathbf{F} = \frac{\partial F_x}{\partial x} + \frac{\partial F_y}{\partial y}
+$$
+
+*   **Positive Divergence:** The field is acting like a **Source** (stuff is being created or spreading out).
+*   **Negative Divergence:** The field is acting like a **Sink** (stuff is being destroyed or compressing).
+*   **Zero Divergence:** The field is incompressible (like water flowing in a pipe).
+
+## 2. Curl (The Off-Diagonals)
+
+Curl measures how much the vector field is **rotating** or **twisting** at a point.
+In 2D, it is related to the difference of the off-diagonal elements.
+
+$$
+\text{curl}(\mathbf{F}) = \nabla \times \mathbf{F} = \frac{\partial F_y}{\partial x} - \frac{\partial F_x}{\partial y}
+$$
+
+*   **Positive Curl:** Counter-clockwise rotation.
+*   **Negative Curl:** Clockwise rotation.
+*   **Zero Curl:** Irrotational field (no local spinning).
+
+> [!NOTE]
+> **Is Jacobian different from Divergence?**
+> Yes! The Jacobian is the **parent container**.
+> *   The Jacobian is a **Matrix** (4 numbers in 2D).
+> *   Divergence is a **Scalar** (1 number) derived from the Jacobian.
+> *   Curl is a **Vector** (or scalar in 2D) derived from the Jacobian.
+>
+> You can think of Divergence and Curl as "summary statistics" of the Jacobian.
+
+## Interactive Explorer
+
+Use the tool below to switch between different vector fields. Watch how the Jacobian changes, and how that changes the Divergence and Curl values.
+
+<MarimoEmbed
+  notebookPath="/notebooks/multivariable_calculus/divergence_curl/index.html"
+  title="Divergence & Curl Explorer"
+  height="800px"
+/>
+
+### Key Takeaways
+1.  **Source:** $J = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}$. Diagonals are positive $\to$ High Divergence.
+2.  **Vortex:** $J = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$. Diagonals are zero $\to$ Zero Divergence. Off-diagonals are opposite $\to$ High Curl.
+
+### How to Run Locally
+`uv run marimo edit web/public/notebooks/multivariable_calculus/divergence_curl.py`

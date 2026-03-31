@@ -1,0 +1,98 @@
+---
+title: Product & Chain Rules
+description: How to handle complex functions by breaking them down.
+---
+
+import ProductChainStepVis from '@/components/interactive/calculus/ProductChainStepVis';
+
+# Product & Chain Rules: The Algebra of Change
+
+We know how to find the derivative of simple functions. But real-world systems are rarely simple. They are built by **combining** simple parts.
+
+*   **Multiplying** things together (Product Rule).
+*   **Chaining** things one after another (Chain Rule).
+
+How do we track the "nudge" through these combinations?
+
+<ProductChainStepVis />
+
+## The Product Rule: The Expanding Rectangle
+
+Imagine a function $A(t) = x(t) \cdot y(t)$.
+You can think of this as the **Area** of a rectangle with width $x$ and height $y$, both changing over time.
+
+If we nudge time forward by $dt$:
+1.  The width grows by $dx$.
+2.  The height grows by $dy$.
+
+How much does the Area change ($dA$)?
+
+Visually, the new area adds three pieces:
+1.  A thin strip on the right: **Height ($y$) $\times$ Change in Width ($dx$)**.
+2.  A thin strip on the top: **Width ($x$) $\times$ Change in Height ($dy$)**.
+3.  A tiny corner piece: **$dx \cdot dy$**.
+
+As $dt \to 0$, the tiny corner piece becomes infinitely small compared to the strips and disappears. We are left with just the two strips.
+
+$$
+dA = y \cdot dx + x \cdot dy
+$$
+
+Dividing by $dt$, we get the **Product Rule**:
+
+$$
+\frac{d}{dt}(x \cdot y) = x \frac{dy}{dt} + y \frac{dx}{dt}
+$$
+
+<Callout title="Intuition Check" type="tip">
+**"Left d-Right + Right d-Left"**
+It says: The total change is the current Width times the growth of Height, PLUS the current Height times the growth of Width.
+</Callout>
+
+## The Chain Rule: Sensitivity of Sensitivity
+
+This is the most important rule in Deep Learning.
+It deals with **Composition**: functions inside functions.
+
+$$
+f(x) = g(h(x))
+$$
+
+Imagine three gears connected in a line:
+1.  **Gear X** (Input)
+2.  **Gear H** (Middle)
+3.  **Gear G** (Output)
+
+We want to know: **If I turn Gear X, how much does Gear G turn?**
+
+*   **Step 1:** If I nudge $x$ by 1 unit, $h$ changes by $\frac{dh}{dx}$ units. (Let's say 2).
+*   **Step 2:** If $h$ changes by 1 unit, $g$ changes by $\frac{dg}{dh}$ units. (Let's say 3).
+
+So, if I nudge $x$ by 1:
+*   $h$ moves by 2.
+*   Since $h$ moved by 2, $g$ moves by $2 \times 3 = 6$.
+
+The total sensitivity is the **Product of the Sensitivities**.
+
+$$
+\frac{df}{dx} = \frac{dg}{dh} \cdot \frac{dh}{dx}
+$$
+
+## AI/ML Relevance
+
+<Callout title="Backpropagation IS the Chain Rule" type="tip">
+A Neural Network is just a massive composite function:
+$$ \text{Loss} = L( \text{Layer}_3( \text{Layer}_2( \text{Layer}_1( \text{Input} ) ) ) ) $$
+
+To train it, we need to know: "How does the Loss change if I nudge a weight in Layer 1?"
+To find this, we just multiply the derivatives (gradients) of every layer from the end back to the start.
+$$ \frac{d\text{Loss}}{d\text{Weight}_1} = \frac{d\text{Loss}}{d\text{Layer}_3} \cdot \frac{d\text{Layer}_3}{d\text{Layer}_2} \cdot \frac{d\text{Layer}_2}{d\text{Layer}_1} \cdot \frac{d\text{Layer}_1}{d\text{Weight}_1} $$
+
+This "backward flow of gradients" is called **Backpropagation**. It is literally just the Chain Rule.
+</Callout>
+
+<img src="/images/calculus/product-chain-rule.png" alt="Visualizing product rule as rectangle area and chain rule as gears" width="100%" />
+
+## Interactive Playground
+
+[Interactive Marimo Notebook: The Chain Reaction](/notebooks/chain-rule)

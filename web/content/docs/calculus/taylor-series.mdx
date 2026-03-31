@@ -1,0 +1,80 @@
+---
+title: Taylor Series
+description: How computers calculate complex functions using simple polynomials.
+---
+
+import TaylorSeriesVis from '@/components/interactive/calculus/TaylorSeriesVis';
+
+# Taylor Series: The Polynomial Mimic
+
+How does your calculator know that $\sin(0.5) = 0.47942...$?
+Does it have a massive lookup table for every possible number? **No.**
+
+It uses a **Taylor Series**.
+
+Computers are really good at simple arithmetic: addition, subtraction, multiplication, and division. They are *not* naturally good at "transcendental" functions like $\sin(x)$, $\cos(x)$, or $e^x$.
+
+The goal of a Taylor Series is to **approximate** these complex functions using only simple polynomials (powers of $x$).
+
+## The Intuition: Matching Derivatives
+
+Imagine you want to fake a function $f(x)$ using a polynomial $P(x)$ at a specific point (say, $x=0$).
+
+1.  **Level 0 (Position):** Make sure $P(0) = f(0)$. (The curves touch).
+2.  **Level 1 (Slope):** Make sure $P'(0) = f'(0)$. (They go in the same direction).
+3.  **Level 2 (Curvature):** Make sure $P''(0) = f''(0)$. (They curve the same way).
+4.  **Level 3 (Twist):** Make sure $P'''(0) = f'''(0)$.
+
+The more derivatives you match, the closer your polynomial hugs the original function.
+
+<TaylorSeriesVis />
+
+Notice how adding more terms (higher degree) makes the approximation wrap around the sine wave further and further?
+
+## Formal Notation
+
+The formula looks scary, but it's just a recipe for matching those derivatives.
+The Taylor Series for $f(x)$ centered at $a$ is:
+
+$$
+f(x) \approx f(a) + \frac{f'(a)}{1!}(x-a) + \frac{f''(a)}{2!}(x-a)^2 + \frac{f'''(a)}{3!}(x-a)^3 + \dots
+$$
+
+Or, in compact summation notation:
+
+$$
+f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!} (x-a)^n
+$$
+
+## Mechanics: Approximating $e^x$
+
+Let's approximate $f(x) = e^x$ at $x=0$ (Maclaurin Series).
+The beauty of $e^x$ is that its derivative is just itself!
+*   $f(x) = e^x \rightarrow f(0) = 1$
+*   $f'(x) = e^x \rightarrow f'(0) = 1$
+*   $f''(x) = e^x \rightarrow f''(0) = 1$
+
+All derivatives are 1. The formula becomes very simple:
+
+$$
+e^x \approx 1 + \frac{1}{1!}x + \frac{1}{2!}x^2 + \frac{1}{3!}x^3 + \dots
+$$
+$$
+e^x \approx 1 + x + \frac{x^2}{2} + \frac{x^3}{6} + \dots
+$$
+
+If you want to know $e^{0.1}$, just plug in $0.1$:
+$1 + 0.1 + 0.005 + 0.00016... \approx 1.10516$
+This is extremely accurate with just a few terms!
+
+## AI/ML Relevance
+
+<Callout title="Optimization Landscapes" type="tip">
+Taylor Series are the foundation of **Optimization** algorithms.
+
+1.  **Gradient Descent (First Order):** When we step down the gradient, we are essentially approximating the Loss Landscape as a **flat plane** (a 1st-degree Taylor series) and taking a step downhill.
+    $$ L(w + \Delta w) \approx L(w) + \nabla L(w)^T \Delta w $$
+
+2.  **Newton's Method (Second Order):** More advanced optimizers approximate the Loss Landscape as a **quadratic bowl** (a 2nd-degree Taylor series). This uses the **Hessian Matrix** (second derivatives) to jump directly to the bottom of the bowl.
+    $$ L(w + \Delta w) \approx L(w) + \nabla L(w)^T \Delta w + \frac{1}{2} \Delta w^T H \Delta w $$
+</Callout>

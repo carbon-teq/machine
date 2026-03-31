@@ -1,0 +1,11 @@
+{
+  "pages": [
+    "index",
+    "curriculum",
+    "architecture",
+    "linear-algebra",
+    "calculus",
+    "multivariable-calculus",
+    "neural-networks"
+  ]
+}

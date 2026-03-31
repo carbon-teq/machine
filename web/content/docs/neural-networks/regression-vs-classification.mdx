@@ -1,0 +1,68 @@
+---
+title: Regression vs. Classification
+description: Choosing the right loss function for your problem.
+---
+
+# Regression vs. Classification
+
+Neural networks can solve many problems, but they generally fall into two categories:
+1.  **Regression:** Predicting a continuous number (e.g., house price, temperature).
+2.  **Classification:** Predicting a discrete label (e.g., cat vs. dog, spam vs. ham).
+
+## 1. The Hook: What are we predicting?
+
+If you are predicting the price of a house, you want a number like $500,000.
+If you are predicting if an email is spam, you want a probability like 0.9 (90%).
+
+## 2. Geometric Intuition: The Difference
+
+*   **Regression:** Fitting a curve through data points.
+*   **Classification:** Drawing a decision boundary between groups of points.
+
+## 3. Formal Notation: Loss Functions
+
+**Regression (Mean Squared Error - MSE):**
+$$
+J = \frac{1}{m} \sum (y - \hat{y})^2
+$$
+
+**Binary Classification (Binary Cross-Entropy - BCE):**
+$$
+J = -\frac{1}{m} \sum (y \log \hat{y} + (1-y) \log (1-\hat{y}))
+$$
+
+**Multi-Class Classification (Categorical Cross-Entropy):**
+$$
+J = -\sum y_i \log(\hat{y}_i)
+$$
+
+## 4. The Mechanics: Implementation
+
+In PyTorch:
+*   **Regression:** `nn.MSELoss()`
+*   **Classification:** `nn.CrossEntropyLoss()`
+
+## 5. AI/ML Relevance
+
+Choosing the wrong loss function will make your model fail to learn. It is the most critical design choice after architecture.
+
+## 6. Interactive Lab
+
+### Planned Interactive Components
+
+**1. Manim Animation: Fitting vs. Separating**
+*   **Split Screen:**
+    *   **Left (Regression):** Points scattered along a trend. A line moves to *minimize the distance* to the points (MSE).
+    *   **Right (Classification):** Red and Blue points. A line moves to *maximize the margin* between the groups (BCE).
+*   **Visual:** Show the "error bars" (residuals) for regression vs. the "probability penalties" for classification.
+
+**2. Marimo Notebook: Loss Function Selector**
+*   **Input:** User selects a dataset type (House Prices vs. Spam Detection).
+*   **Action:** User selects a loss function (MSE, BCE, MAE).
+*   **Feedback:** The system explains *why* the choice is good or bad.
+    *   *Example:* "Using MSE for classification is bad because it doesn't punish confident wrong answers heavily enough."
+
+## 7. Key Questions Answered
+
+*   [ ] **Are we predicting a number or a category?** This determines your loss function.
+*   [ ] **Why use Log Loss for classification?** Because it heavily penalizes confident wrong answers (e.g., predicting 0.99 probability for the wrong class).

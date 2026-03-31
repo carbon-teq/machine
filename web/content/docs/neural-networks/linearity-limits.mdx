@@ -1,0 +1,100 @@
+---
+title: The Limits of Linearity
+description: Why a single neuron isn't enough.
+---
+
+import MarimoEmbed from '@/components/interactive/MarimoEmbed';
+
+# The Limits of Linearity
+
+Imagine you are wiring a hallway light with two switches. You want the light on only when exactly one switch is on.
+
+That means:
+
+- OFF, OFF $\rightarrow$ OFF (0)
+- ON, ON $\rightarrow$ OFF (0)
+- OFF, ON $\rightarrow$ ON (1)
+- ON, OFF $\rightarrow$ ON (1)
+
+This is the **XOR** pattern.
+
+We already know a single perceptron draws one straight boundary. The question is simple: can one straight boundary separate XOR correctly?
+
+Plot the four points in your head:
+- $(0,0)$ and $(1,1)$ are class $0$
+- $(0,1)$ and $(1,0)$ are class $1$
+
+No matter how you rotate or shift one line, at least one point stays on the wrong side. The classes sit on opposite diagonals, so XOR is **not linearly separable**.
+
+Use the notebook below to test that claim directly.
+
+<MarimoEmbed
+  notebookPath="/notebooks/neural_networks/xor_linearity_limits/index.html"
+  title="XOR Linearity Limits Explorer"
+  height="920px"
+/>
+
+**Try this:**
+1. Choose **Single perceptron** and move $w_1, w_2, b$.
+2. Watch the misclassification count. It never reaches $0/4$ for XOR.
+3. Switch to **2-layer XOR network** and see all four points classified correctly.
+
+If you want to run or edit it locally:
+- Open notebook: `uv run marimo edit web/public/notebooks/neural_networks/xor_linearity_limits.py`
+- Re-export static embed: `uv run --with marimo --with numpy --with plotly marimo export html-wasm web/public/notebooks/neural_networks/xor_linearity_limits.py -o web/public/notebooks/neural_networks/xor_linearity_limits --mode run --no-show-code -f`
+- Download source: [XOR Linearity Notebook](/notebooks/neural_networks/xor_linearity_limits.py)
+
+Now that we have the picture, we can write the algebra precisely.
+
+Assume one perceptron solves XOR:
+
+- $\hat{y} = 1$ if $w_1x_1 + w_2x_2 + b > 0$, else $\hat{y}=0$
+- For $(0,0)\mapsto 0$: $b \le 0$
+- For $(1,1)\mapsto 0$: $w_1 + w_2 + b \le 0$
+- For $(0,1)\mapsto 1$: $w_2 + b > 0$
+- For $(1,0)\mapsto 1$: $w_1 + b > 0$
+
+Add the last two inequalities:
+$$
+(w_2 + b) + (w_1 + b) > 0 \Rightarrow w_1 + w_2 + 2b > 0
+$$
+
+From $w_1 + w_2 + b \le 0$, we have $w_1 + w_2 \le -b$. Substitute:
+$$
+(-b) + 2b > 0 \Rightarrow b > 0
+$$
+But we already had $b \le 0$. Contradiction.
+
+So one perceptron cannot represent XOR.
+
+### Symbol Dictionary
+
+| Symbol | Meaning |
+| :--- | :--- |
+| $x_1, x_2$ | Two binary inputs (switch states). |
+| $w_1, w_2$ | Input weights. |
+| $b$ | Bias (threshold shift). |
+| $z$ | Weighted sum, $z = w_1x_1 + w_2x_2 + b$. |
+| $\hat{y}$ | Predicted class after step activation. |
+
+### A Small Worked Mechanic
+
+Take one trial setting for a single perceptron: $w_1=1,\ w_2=1,\ b=-0.5$.
+
+For input $(1,1)$:
+$$
+z = 1\cdot1 + 1\cdot1 - 0.5 = 1.5 > 0 \Rightarrow \hat{y}=1
+$$
+But XOR target at $(1,1)$ is $0$, so this already fails.
+
+This is why we move from one neuron to layered composition.
+
+A 2-layer network can combine multiple linear boundaries to create a non-linear decision pattern:
+- Hidden neuron 1: detects OR-like region
+- Hidden neuron 2: detects NAND-like region
+- Output neuron: combines them with AND-like logic
+
+> [!NOTE]
+> **ML Relevance:**
+> XOR is the smallest example showing why deep learning needs hidden layers and non-linearity.
+> In practice, image, audio, and language data are far more tangled than XOR, so modern models rely on many stacked non-linear layers to form useful decision boundaries.

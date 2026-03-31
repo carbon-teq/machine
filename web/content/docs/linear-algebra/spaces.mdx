@@ -1,0 +1,98 @@
+---
+title: Vector Spaces & Subspaces
+description: Understanding the "Room" where data lives.
+---
+
+# Vector Spaces: The Geometry of Data
+
+We have talked about vectors as arrows and matrices as transformations. Now, let's talk about the **environment** they live in.
+
+Imagine you are a fly buzzing around a room.
+*   You can move Left/Right ($x$).
+*   You can move Forward/Backward ($y$).
+*   You can move Up/Down ($z$).
+
+Because you can move freely in all 3 directions, you live in a **3-Dimensional Vector Space** ($\mathbb{R}^3$).
+
+Now imagine a fly trapped on a sheet of paper lying on a table.
+It can move Left/Right and Forward/Backward, but it cannot move Up/Down.
+Even though it is technically in a 3D room, its world is restricted to a flat 2D sheet.
+This sheet is a **Subspace**.
+
+In Machine Learning, our data often lives in a massive "room" (like 1000 dimensions), but the actual meaningful patterns are trapped on a thin "sheet" (a lower-dimensional subspace). Finding this sheet is the key to understanding the data.
+
+## The Column Space: The "Reachable" World
+
+Let's look at this through the lens of **Linear Transformations**.
+We know a matrix $\mathbf{A}$ is a function that transforms an input vector $\mathbf{x}$ into an output vector $\mathbf{b}$.
+
+$$
+\mathbf{A}\mathbf{x} = \mathbf{b}
+$$
+
+The **Column Space** of $\mathbf{A}$ (written as $\mathcal{C}(\mathbf{A})$) is the set of **all possible outputs** this function can produce.
+
+Think of $\mathbf{A}$ as a **Robot Arm** with specific joints.
+*   You give it a command $\mathbf{x}$ (angles for the joints).
+*   The hand moves to a position $\mathbf{b}$.
+
+If the robot has 3 independent joints, it can reach *any* point in the room. Its Column Space is the entire 3D space ($\mathbb{R}^3$).
+But if one joint is broken and stuck, the robot might only be able to draw on a flat whiteboard. It cannot reach out to grab you. Its Column Space is just a 2D plane (a subspace).
+
+<Callout title="Real World Example: Color Gamuts" type="tip">
+Think of your computer monitor. It produces colors by mixing Red, Green, and Blue light.
+The **Column Space** of your monitor is the set of all colors it can physically display (its "Gamut").
+
+If you try to display a color that exists in nature (like a super-saturated neon violet) but lies **outside** the monitor's Column Space, the monitor simply cannot show it. It will clip the color to the nearest available one.
+Knowing the Column Space tells engineers exactly which colors are "reachable" and which are impossible for that device.
+</Callout>
+
+## The Null Space: The "Blind Spot"
+
+Now, imagine you move the robot's joystick, but the hand doesn't move.
+Maybe you pushed "Left" and "Right" at the same time, and they canceled out.
+
+The **Null Space** of $\mathbf{A}$ (written as $\mathcal{N}(\mathbf{A})$) is the collection of all joystick commands $\mathbf{x}$ that result in **Zero Movement** ($\mathbf{0}$).
+
+$$
+\mathbf{A}\mathbf{x} = \mathbf{0}
+$$
+
+*   **Intuition:** It is the "Blind Spot" of the matrix. Any data in the Null Space is invisible to the output.
+*   **Information Loss:** If your Null Space is large, your matrix is "losing" a lot of information. You cannot figure out what the command was just by looking at the hand position, because many different commands could have resulted in "stay still."
+
+## Rank: The True Dimension
+
+The **Rank** of a matrix tells you the "true" dimensionality of the data it holds.
+
+Imagine you have a dataset with 3 features (3 columns):
+1.  Height in inches
+2.  Height in cm
+3.  Weight
+
+This is a $N \times 3$ matrix. It looks 3-dimensional.
+But wait—"Height in inches" and "Height in cm" are redundant! If you know one, you know the other. They lie on the same line.
+Geometrically, your data doesn't fill a 3D volume. It is flattened onto a 2D plane.
+
+*   **Rank = 2.**
+
+The Rank tells you how many **truly independent** features you have.
+
+<Callout title="Dimensionality Reduction" type="tip">
+In ML, we often *want* Low Rank matrices.
+If a $1000 \times 1000$ image matrix has Rank 50, it means the image is actually very simple—it can be compressed massively without losing much quality. This is the basis of **PCA (Principal Component Analysis)** and **SVD (Singular Value Decomposition)**.
+</Callout>
+
+## Summary
+
+*   **Vector Space:** The full room ($\mathbb{R}^n$).
+*   **Subspace:** A flat sheet or line inside that room.
+*   **Column Space:** The sheet where the output lives.
+*   **Null Space:** The directions that get crushed to zero.
+*   **Rank:** The dimension of the sheet (Line = 1, Plane = 2).
+
+<img src="/images/linear-algebra/spaces.png" alt="Column Space and Null Space visualization" width="100%" />
+
+## Interactive Playground
+
+[Interactive Marimo Notebook: Explore the Spaces](/notebooks/spaces)

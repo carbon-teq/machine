@@ -1,0 +1,16 @@
+{
+  "title": "Linear Algebra",
+  "pages": [
+    "vectors",
+    "linear-combinations",
+    "linear-transformations",
+    "matrix-multiplication",
+    "3d-linear-transformations",
+    "determinant",
+    "inverse-matrices",
+    "transpose",
+    "spaces",
+    "dot-products",
+    "eigenvectors"
+  ]
+}

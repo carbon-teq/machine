@@ -1,0 +1,11 @@
+{
+  "title": "Multivariable Calculus",
+  "pages": [
+    "visualizing-3d-surfaces",
+    "partial-derivatives",
+    "gradient-vector",
+    "divergence-and-curl",
+    "directional-derivatives",
+    "multivariable-chain-rule"
+  ]
+}

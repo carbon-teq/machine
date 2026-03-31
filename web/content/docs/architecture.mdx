@@ -1,0 +1,70 @@
+---
+title: System Architecture
+description: Overview of the Machine Learning Learning Platform architecture
+---
+
+# Architecture Overview
+
+This platform integrates modern web development with scientific computing to create an interactive learning experience for Machine Learning and Mathematics.
+
+## Teaching Principles
+
+Every lesson follows these principles:
+
+1. **Geometric intuition first:** Start from visual meaning (movement, shape, direction, area, flow) before symbolic rules.
+2. **Invent-it mindset:** Teach concepts as if we are discovering math from scratch, not memorizing formulas.
+3. **Notation without fear:** Introduce symbols slowly, define each symbol in plain language, and keep examples concrete.
+4. **Real-world grounding:** Tie each concept to practical scenarios (finance, robotics, recommendation systems, computer vision, control systems).
+5. **AI/ML relevance hints:** Explicitly call out where each concept appears in machine learning pipelines and model training.
+
+## High-Level Components
+
+The repository is structured into two main environments:
+
+1.  **Frontend Web Application (`/web`)**
+    *   **Framework:** Next.js (App Router)
+    *   **Documentation Generator:** Fumadocs
+    *   **Styling:** Tailwind CSS v4
+    *   **Package Manager:** pnpm
+    *   **Purpose:** Renders the curriculum content, mathematics (via KaTeX), and embeds interactive components.
+
+2.  **Scientific Python Environment (`/python`)**
+    *   **Package Manager:** pixi (conda-forge)
+    *   **Static Visualization Rendering:** Manim (Community Edition)
+    *   **Interactive Computing:** Marimo
+    *   **Purpose:** Handles computationally heavy visualizations and provides interactive scratchpads for math/ML concepts.
+
+## The Content Pipeline
+
+A standard lesson consists of three interconnected pieces:
+
+### 1. The Written Content (MDX)
+Stored in `/web/content/docs/[topic].mdx`, these files use Markdown to explain concepts. They support full LaTeX formatting via `remark-math` and `rehype-katex`.
+
+Each lesson page should include:
+- **Intuition first:** a plain-language geometric story.
+- **Notation guide:** a small "symbol dictionary" before formal equations.
+- **Simple use case:** one low-friction numeric example.
+- **Real-world example:** where this appears in practice.
+- **AI/ML hint box:** where this concept is used in training, inference, or model architecture.
+
+### 2. The Visual Explanations (Manim)
+Stored in `/python/scenes/`. Complex geometric intuitions (like matrix transformations or gradient descent cost surfaces) are rendered as static lesson images using Manim (`-s` mode) and exported to `/web/public/images/lessons/[topic_slug].png`. MDX files embed these deterministic image paths directly.
+
+### 3. The Interactive Playgrounds (Marimo)
+Stored in `/python/notebooks/`. Instead of static code blocks, we provide Marimo notebooks. These reactive python notebooks allow the user to tweak hyperparameters (e.g., learning rate) and see the results instantly. They can be exported as HTML or hosted locally and embedded into the Fuma Docs via `<iframe>`.
+
+## Idempotent Content Conventions
+
+To keep content wiring stable across repeated generation runs, lesson assets follow deterministic paths:
+
+- Scene script: `/python/scenes/[topic_slug].py`
+- Notebook script: `/python/notebooks/[topic_slug].py`
+- Lesson page: `/web/content/docs/[topic_slug].mdx`
+- Manim image: `/web/public/images/lessons/[topic_slug].png`
+
+We avoid timestamped asset names and update canonical files in place. For math lessons, the default is static image generation; Manim video generation is optional and only done when explicitly requested.
+
+## Dependency Management
+
+To solve complex system dependencies (like `ffmpeg`, `pangocairo`, etc. needed by Manim), the entire Python stack is managed by **pixi**. This ensures reproducibility across any machine without requiring `sudo` privileges for system libraries.

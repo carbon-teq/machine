@@ -1,0 +1,71 @@
+---
+title: Visualizing 3D Surfaces
+description: Stepping out of the flat world and into the mountains.
+---
+
+# Visualizing 3D Surfaces
+
+Welcome to the third dimension.
+
+In single-variable calculus, we lived on a flat piece of paper. We had one input ($x$) and one output ($y = f(x)$). The result was a **curve**—a squiggly line.
+
+But the real world isn't a line. It's a space. In Machine Learning, we almost never deal with just one input. We deal with thousands. To understand that, we first need to understand **two** inputs.
+
+## 1. The Hiking Analogy
+
+Imagine you are hiking in the mountains.
+*   Your position on the map is defined by two coordinates: **Longitude ($x$)** and **Latitude ($y$)**.
+*   But there is a third number that matters: **Altitude ($z$)**.
+
+The altitude depends on where you are standing. If you move East ($x$), the altitude might go up. If you move North ($y$), it might go down.
+
+We can write this as a function:
+$$
+z = f(x, y)
+$$
+
+This isn't a curve anymore. It's a **Surface**. It's the skin of the earth.
+
+## 2. From Lines to Sheets
+
+*   **1D Input ($x$):** You can move Left/Right. The function $f(x)$ is a bent wire.
+*   **2D Input ($x, y$):** You can move Left/Right AND Forward/Backward. The function $f(x, y)$ is a bent sheet.
+
+> [!TIP]
+> **Why this matters for ML:**
+> In Deep Learning, the "Altitude" ($z$) is usually the **Error** or **Loss** of our model. The coordinates ($x, y$) are the **Weights** (knobs) we can turn.
+>
+> We want to find the lowest point in the mountains (Minimum Error). To do that, we need to understand the shape of the land.
+
+## 3. Visualizing with Color (Heatmaps)
+
+Since 3D screens are hard to come by, we often use **Heatmaps** or **Contour Plots** to see 3D shapes on 2D paper.
+
+*   **Red (Hot):** High altitude (Peaks).
+*   **Blue (Cold):** Low altitude (Valleys).
+*   **Contour Lines:** Lines that connect points of equal height. If you walk along a contour line, you stay flat—you don't go up or down.
+
+import MarimoEmbed from '@/components/interactive/MarimoEmbed';
+
+## 4. Interactive Playground
+
+Static images don't do justice to 3D surfaces. You need to spin them, zoom in, and see the peaks and valleys yourself.
+
+We have prepared a Marimo notebook that lets you:
+1.  Visualize common surfaces (Paraboloids, Saddles, Planes).
+2.  Change the inputs and see how the surface warps.
+3.  Understand "Level Sets" (slicing the mountain horizontally).
+
+<MarimoEmbed 
+  notebookPath="/notebooks/multivariable_calculus/3d_surfaces/index.html" 
+  title="Visualizing 3D Surfaces (Marimo)"
+  height="800px"
+/>
+
+### How to Run Locally
+If you prefer to run this locally:
+1.  Install and run with uv: `uv run marimo edit web/public/notebooks/multivariable_calculus/3d_surfaces.py`
+2.  Download the notebook below.
+3.  Export static embed HTML: `uv run --with marimo --with plotly --with numpy marimo export html web/public/notebooks/multivariable_calculus/3d_surfaces.py --no-include-code -o web/public/notebooks/multivariable_calculus/3d_surfaces/index.html -f`
+
+[Download 3D Surfaces Notebook](/notebooks/multivariable_calculus/3d_surfaces.py)

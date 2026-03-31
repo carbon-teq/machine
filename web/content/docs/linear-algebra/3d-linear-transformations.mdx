@@ -1,0 +1,90 @@
+---
+title: 3D Linear Transformations
+description: Extending transformations into three dimensions and beyond.
+---
+
+# 3D Linear Transformations: Beyond the Flatland
+
+We have spent a lot of time on a 2D sheet of paper. But our physical world is 3D. And the world of data? It is often hundreds or thousands of dimensions.
+
+The beauty of linear algebra is that **the rules do not change**. The intuition you built for 2D arrows and grids applies perfectly to 3D space, and even to 1000D space which we cannot visualize.
+
+## The 3D Grid: Adding Depth
+
+In 2D, we tracked two basis vectors, $\hat{\imath}$ (right) and $\hat{\jmath}$ (up).
+In 3D, we simply add a third vector: $\hat{k}$, which points **forward** (out of the screen).
+
+Instead of a flat grid, imagine a 3D **lattice**—a jungle gym of cubes filling space. A linear transformation is still a "warp" of this space. It can twist, stretch, or rotate the entire lattice, but it must keep the grid lines parallel and the origin fixed.
+
+## The 3D Matrix
+
+To record a 3D transformation, we just need to track where our three basis vectors land.
+
+*   $\hat{\imath}$ lands at coordinates $\begin{bmatrix} a \\ d \\ g \end{bmatrix}$
+*   $\hat{\jmath}$ lands at coordinates $\begin{bmatrix} b \\ e \\ h \end{bmatrix}$
+*   $\hat{k}$ lands at coordinates $\begin{bmatrix} c \\ f \\ i \end{bmatrix}$
+
+We pack these three landing spots into a $3 \times 3$ matrix:
+
+$$
+\mathbf{A} = \begin{bmatrix}
+| & | & | \\
+\text{New } \hat{\imath} & \text{New } \hat{\jmath} & \text{New } \hat{k} \\
+| & | & |
+\end{bmatrix}
+=
+\begin{bmatrix}
+a & b & c \\
+d & e & f \\
+g & h & i
+\end{bmatrix}
+$$
+
+When we multiply this matrix by a 3D vector $\mathbf{v}$, we are doing the exact same linear combination as before, just with three parts:
+
+$$
+\mathbf{A}\mathbf{v} = x(\text{New } \hat{\imath}) + y(\text{New } \hat{\jmath}) + z(\text{New } \hat{k})
+$$
+
+## The Power of N-Dimensions
+
+Here is the secret: **Math doesn't care that you can't visualize 4D.**
+
+In Machine Learning, we rarely work with just 3 dimensions.
+*   A user's preference vector might have 50 components (Age, Location, Watch Time, etc.).
+*   A language model like GPT uses vectors with **12,288 dimensions** to represent a single word.
+
+We call this **High-Dimensional Space** (or $\mathbb{R}^n$).
+
+Even though we cannot draw a 12,288-dimensional arrow, we treat it **exactly** the same way.
+*   It is just a list of numbers.
+*   We can add them.
+*   We can measure their length (magnitude).
+*   We can transform them using a giant matrix.
+
+<Callout title="The Curse of Dimensionality" type="warn">
+While the *algebra* works the same, the *geometry* gets weird in high dimensions.
+In extremely high-dimensional space, almost all points are "far away" from each other, and the volume of space explodes. This makes finding patterns harder, a problem known as the **Curse of Dimensionality**.
+</Callout>
+
+## AI/ML Relevance
+
+<Callout title="Word Embeddings are High-Dimensional Vectors" type="tip">
+How does an AI understand the word "King"?
+It converts it into a vector, say $\mathbf{v}_{king} \in \mathbb{R}^{1024}$.
+
+This vector is a point in a 1024-dimensional space.
+Remarkably, the geometry holds meaning. If you take the vector for "King", subtract the vector for "Man", and add the vector for "Woman", you land near the vector for "Queen".
+
+$$ \mathbf{v}_{king} - \mathbf{v}_{man} + \mathbf{v}_{woman} \approx \mathbf{v}_{queen} $$
+
+The AI is performing linear algebra in a "Concept Space" that we can't see, but we can calculate.
+</Callout>
+
+import LinearTransformation3DVis from '@/components/interactive/linear-algebra/LinearTransformation3DVis';
+
+<LinearTransformation3DVis />
+
+## Interactive Playground
+
+[Interactive Marimo Notebook: 3D Rotations](/notebooks/3d-linear-transformations)

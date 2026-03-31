@@ -1,0 +1,87 @@
+---
+title: Eigenvectors & Eigenvalues
+description: The hidden axes of the universe.
+---
+
+import EigenvectorVis from '@/components/interactive/linear-algebra/EigenvectorVis';
+
+# Eigenvectors: The Calm in the Storm
+
+When we apply a Linear Transformation (a matrix) to space, things usually get chaotic.
+Vectors rotate, they shear, they get knocked off their original paths.
+If you pick a random vector and apply a transformation, it will almost certainly point in a **new direction** afterwards.
+
+But amidst this chaos, there are special vectors that refuse to turn.
+They might get stretched longer, or squished shorter, or even flipped backwards, but they **stay on their original line**.
+
+These stubborn vectors are called **Eigenvectors**.
+They are the "Axes" of the transformation—the hidden skeleton that defines the shape of the movement.
+
+## Geometric Intuition
+
+Imagine a spinning globe.
+Every city on Earth is moving in a circle. New York moves, London moves, Tokyo moves.
+But there are two points that are not moving in a circle: the North Pole and the South Pole. They are spinning in place, but they are not *translating* to a new location. The axis connecting them stays fixed.
+
+If we represented this rotation as a matrix, the axis of the Earth would be the **Eigenvector**.
+
+Or imagine stretching a sheet of rubber.
+If you pull the sides outwards, most points move diagonally. But the points exactly along the center horizontal line just move straight outwards. That center line is an Eigenvector.
+
+## The Equation
+
+Mathematically, an Eigenvector $\mathbf{v}$ obeys this simple rule:
+
+$$
+\mathbf{A}\mathbf{v} = \lambda \mathbf{v}
+$$
+
+Let's decode this:
+1.  **$\mathbf{A}\mathbf{v}$**: This is the matrix acting on the vector (the transformation).
+2.  **$\lambda \mathbf{v}$**: This is just the original vector scaled by a number $\lambda$ (Lambda).
+
+This equation says: *"Transforming this vector is the exact same thing as just scaling it."*
+For these special vectors, matrix multiplication (hard) becomes scalar multiplication (easy).
+
+*   **$\mathbf{v}$ is the Eigenvector:** The direction that stays the same.
+*   **$\lambda$ is the Eigenvalue:** The factor by which it stretches.
+    *   If $\lambda = 2$, the vector doubles in length.
+    *   If $\lambda = 0.5$, it shrinks.
+    *   If $\lambda = -1$, it flips direction.
+
+## Why Do We Care? (The "Why")
+
+You might ask: *"Why does it matter if a few vectors don't rotate?"*
+
+It matters because **Eigenvectors reveal the hidden structure of the matrix.**
+If you know the Eigenvectors, you know exactly what the matrix is "doing." You can ignore the complex grid-warping and just say "It stretches *this* way by 2, and *that* way by 3."
+
+It allows us to **decouple** a complicated system into simple, independent parts.
+
+## AI/ML Relevance
+
+<Callout title="PCA: Finding the 'Main' Features" type="tip">
+Imagine you have a dataset of people with 100 different features (height, weight, age, income, etc.).
+This data forms a blob in 100-dimensional space.
+
+If we calculate the **Eigenvectors** of this data blob (specifically, of its Covariance Matrix), we find the "Principal Axes" of the data.
+*   The **First Eigenvector** points in the direction where people are *most different* from each other.
+*   The **Second Eigenvector** points in the next most important direction.
+
+This is **Principal Component Analysis (PCA)**. It lets us throw away the 98 useless dimensions and keep just the top 2 Eigenvectors, preserving the core information of the dataset.
+</Callout>
+
+<Callout title="Google's PageRank" type="tip">
+The algorithm that built Google is based on Eigenvectors.
+They modeled the entire internet as a massive matrix of links.
+If you start at a random page and keep clicking links forever, where do you end up spending the most time?
+
+The answer is the **Principal Eigenvector** of the internet's matrix.
+The components of this vector correspond to the "Importance" of each website.
+</Callout>
+
+<EigenvectorVis />
+
+## Interactive Playground
+
+[Interactive Marimo Notebook: Finding Eigen-directions](/notebooks/eigenvectors)

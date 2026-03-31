@@ -1,0 +1,97 @@
+---
+title: The Derivative
+description: The paradox of instantaneous change.
+---
+
+import DerivativeVis from '@/components/interactive/calculus/DerivativeVis';
+
+# The Derivative: The Paradox of the Instant
+
+Imagine you are driving a car. You look at your speedometer, and it says "60 mph."
+What does that actually mean?
+
+Speed is $ \frac{\text{Distance}}{\text{Time}} $. It is a measure of how far you went *over a period of time*.
+But if you take a photo of the car, it is frozen. In that single instant ($ t=0 $), the distance traveled is $ 0 $.
+So the speed should be $ \frac{0}{0} $. This is undefined.
+
+**How can you have a speed at a single instant if you haven't moved yet?**
+
+This is the central paradox of the Derivative.
+
+## The "Zoom In" Intuition
+
+To solve this, we don't look at a single point. We look at a tiny, tiny window *around* that point.
+
+Imagine plotting your distance vs. time on a graph. It's a curvy line (you speed up and slow down).
+If you want to know your speed at exactly $t=5$ seconds, you can't just use one point.
+But if you **zoom in** on the graph at $t=5$, something magical happens.
+
+<DerivativeVis />
+
+As you zoom in closer and closer, the curve starts to look less curvy.
+Eventually, if you zoom in enough, **the curve looks like a straight line.**
+
+The **Derivative** is simply the **slope** of this zoomed-in line.
+
+## Formal Notation: The Nudge
+
+Let's say your function is $f(x)$.
+We want to find the slope at a specific point $x$.
+
+We take a tiny step forward, which we call $dx$ (a "differential" change in $x$).
+This tiny step causes the function to change by a tiny amount, $df$.
+
+The slope is the "Rise over Run":
+
+$$
+\text{Slope} = \frac{\text{Rise}}{\text{Run}} = \frac{df}{dx}
+$$
+
+In standard textbook notation, we usually call the step size $h$ (or $\Delta x$) and shrink it to zero:
+
+$$
+\frac{df}{dx} = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h}
+$$
+
+*   $f(x+h) - f(x)$ is the **Change in Output** (Rise).
+*   $h$ is the **Change in Input** (Run).
+
+<Callout title="A Note on Notation" type="info">
+Calculus was invented by two people (Newton and Leibniz) at the same time, and they used different symbols. Today, different fields use different notations for the exact same thing.
+
+*   **Leibniz Notation ($\frac{df}{dx}$):** Best for intuition. It literally says "tiny change in f divided by tiny change in x." It reminds you that it's a ratio.
+*   **Lagrange Notation ($f'(x)$):** Best for brevity. "f-prime of x." Useful when you want to write it quickly.
+*   **Newton Notation ($\dot{y}$):** Used in Physics for time derivatives. "y-dot."
+*   **Euler Notation ($D_x f$):** Used in higher math. "The operator D acting on f."
+
+In Machine Learning, we mostly use **Leibniz** ($\frac{\partial L}{\partial w}$) because it helps us track which variable we are changing.
+</Callout>
+
+## The Power of Sensitivity
+
+In Machine Learning, we rarely think about "slopes." We think about **Sensitivity**.
+
+The derivative $\frac{df}{dx}$ asks:
+**"If I nudge $x$ slightly, how much does $f(x)$ wiggle?"**
+
+*   **High Derivative (Steep Slope):** A tiny nudge in input causes a huge change in output. The system is very sensitive.
+*   **Zero Derivative (Flat):** A tiny nudge does nothing. The system is stable (or stuck).
+*   **Negative Derivative:** Nudging $x$ up makes $f(x)$ go down.
+
+<Callout title="Gradient Descent: The Slide" type="tip">
+Imagine you are blindfolded on a mountain (the "Loss Landscape" of a neural network). You want to get to the bottom (lowest error).
+
+You feel the ground around your feet.
+*   If the slope tilts **up** to your right, you step **left**.
+*   If the slope tilts **down** to your right, you step **right**.
+
+The Derivative tells you which way is "Up." To minimize error, you just walk in the opposite direction.
+$$ \text{New Position} = \text{Old Position} - \text{Learning Rate} \times \text{Derivative} $$
+This is **Gradient Descent**, the engine of all modern AI.
+</Callout>
+
+<img src="/images/calculus/derivative-zoom.png" alt="Zooming in on a curve until it becomes straight" width="100%" />
+
+## Interactive Playground
+
+[Interactive Marimo Notebook: The Zoom Function](/notebooks/derivative)

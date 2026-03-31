@@ -1,0 +1,24 @@
+# Environments & deps (also in web/python subdirs)
+**/.venv/
+**/node_modules/
+
+# Next.js / build
+**/.next/
+**/out/
+**/build/
+**/.source/
+
+# Python
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Env & local
+.env
+.env.*
+!.env.example
+*.pem
+
+# OS & tooling
+.DS_Store
+.vercel

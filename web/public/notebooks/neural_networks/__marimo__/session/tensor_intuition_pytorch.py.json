@@ -1,0 +1,198 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.20.4",
+    "script_metadata_hash": null
+  },
+  "cells": [
+    {
+      "id": "Hbol",
+      "code_hash": "a45ef667a8a3d126da6fc0b60fcb6d3e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stderr",
+          "text": "/home/hammad/.cache/uv/archive-v0/JQ6foXR0KcHhEOUtJzgIz/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:283: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)\n  cpu = _conversion_method_template(device=torch.device(\"cpu\"))\n",
+          "mimetype": "text/plain"
+        }
+      ]
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "1f08b8da47aee2c134d642d01edfb0e0",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h1 id=\"tensor-intuition-in-pytorch\">Tensor Intuition in PyTorch</h1>\n<span class=\"paragraph\">This notebook keeps the code visible on purpose.</span>\n<span class=\"paragraph\">The goal is not to memorize PyTorch syntax. The goal is to build one clear picture:</span>\n<ul>\n<li>a <strong>tensor</strong> is a container of numbers with a shape</li>\n<li>shapes tell us how data is organized</li>\n<li>PyTorch gives us direct operations for indexing, dot products, and matrix multiplication</li>\n<li>for these examples, we stay on the <strong>CPU</strong> so the ideas stay simple</li>\n</ul>\n<span class=\"paragraph\">Read the code, run your eye over the shapes, and connect each operation to the kind of object it acts on.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "067876ffcf8d07a4cf31835507626916",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"the-architecture-of-data\">The Architecture of Data</h2>\n<span class=\"paragraph\">A tensor is simply a container of numbers with a specific <strong>shape</strong>.</span>\n<span class=\"paragraph\">Instead of thinking of tensors as advanced mathematical objects, think of them as the physical layout of your data. The shape tells us exactly how the numbers are arranged.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "d7c2d5b8da0cf412ee80f16860ec1185",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "7ecbe141091048aba333efbd8c264009",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">When you see a shape like <code>(4, 2)</code>, it is telling you a story:</span>\n<ul>\n<li>We are processing <code>4</code> examples simultaneously.</li>\n<li>Each example has <code>2</code> distinct features.</li>\n</ul></span><marimo-ui-element object-id='lEQa-0' random-id='6e16570d-5adf-b396-b0a4-6b1d7407e4f7'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;name&#92;&quot;:&#92;&quot;scalar&#92;&quot;,&#92;&quot;shape&#92;&quot;:&#92;&quot;()&#92;&quot;,&#92;&quot;example&#92;&quot;:&#92;&quot;tensor(3.)&#92;&quot;},{&#92;&quot;name&#92;&quot;:&#92;&quot;vector&#92;&quot;,&#92;&quot;shape&#92;&quot;:&#92;&quot;(3,)&#92;&quot;,&#92;&quot;example&#92;&quot;:&#92;&quot;tensor([   3.,    2., 1500.])&#92;&quot;},{&#92;&quot;name&#92;&quot;:&#92;&quot;batch&#92;&quot;,&#92;&quot;shape&#92;&quot;:&#92;&quot;(4, 2)&#92;&quot;,&#92;&quot;example&#92;&quot;:&#92;&quot;tensor([[3., 2.],&#92;&#92;n        [4., 3.],&#92;&#92;n        [2., 1.],&#92;&#92;n        [5., 4.]])&#92;&quot;}]&quot;' data-total-rows='3' data-total-columns='3' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='false' data-page-size='10' data-selection='&quot;multi&quot;' data-show-filters='false' data-show-download='false' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false' data-download-file-name='&quot;rows&quot;'></marimo-table></marimo-ui-element></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "bd6635010c780b5d211fe3c62938d446",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"pointing-at-the-data\">Pointing at the Data</h2>\n<span class=\"paragraph\">Once we have our data packed into a solid block, we need a way to point at specific pieces of it. Because tensors are structured, we can slice them exactly like grids.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "30f01e9f89244810e6235b933912fc84",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "d04cc8644f6bc060efc4a0a9658c6968",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><div class=\"language-python codehilite\"><pre><span></span><code><span class=\"n\">batch</span> <span class=\"o\">=</span> <span class=\"n\">torch</span><span class=\"o\">.</span><span class=\"n\">tensor</span><span class=\"p\">([</span>\n    <span class=\"p\">[</span><span class=\"mf\">3.0</span><span class=\"p\">,</span> <span class=\"mf\">2.0</span><span class=\"p\">],</span>\n    <span class=\"p\">[</span><span class=\"mf\">4.0</span><span class=\"p\">,</span> <span class=\"mf\">3.0</span><span class=\"p\">],</span>\n    <span class=\"p\">[</span><span class=\"mf\">2.0</span><span class=\"p\">,</span> <span class=\"mf\">1.0</span><span class=\"p\">],</span>\n    <span class=\"p\">[</span><span class=\"mf\">5.0</span><span class=\"p\">,</span> <span class=\"mf\">4.0</span><span class=\"p\">],</span>\n<span class=\"p\">])</span>\n\n<span class=\"n\">batch</span><span class=\"p\">[</span><span class=\"mi\">0</span><span class=\"p\">]</span>      <span class=\"c1\"># first house</span>\n<span class=\"n\">batch</span><span class=\"p\">[:,</span> <span class=\"mi\">1</span><span class=\"p\">]</span>   <span class=\"c1\"># second feature (all houses)</span>\n<span class=\"n\">batch</span><span class=\"p\">[</span><span class=\"mi\">2</span><span class=\"p\">,</span> <span class=\"mi\">0</span><span class=\"p\">]</span>   <span class=\"c1\"># first feature of third house</span>\n<span class=\"n\">batch</span><span class=\"p\">[:</span><span class=\"mi\">2</span><span class=\"p\">]</span>     <span class=\"c1\"># first two houses</span>\n</code></pre></div>\n<div class=\"language-python codehilite\"><pre><span></span><code><span class=\"n\">batch</span><span class=\"p\">[</span><span class=\"mi\">0</span><span class=\"p\">]</span>    <span class=\"o\">-&gt;</span> <span class=\"n\">tensor</span><span class=\"p\">([</span><span class=\"mf\">3.</span><span class=\"p\">,</span> <span class=\"mf\">2.</span><span class=\"p\">])</span>\n<span class=\"n\">batch</span><span class=\"p\">[:,</span> <span class=\"mi\">1</span><span class=\"p\">]</span> <span class=\"o\">-&gt;</span> <span class=\"n\">tensor</span><span class=\"p\">([</span><span class=\"mf\">2.</span><span class=\"p\">,</span> <span class=\"mf\">3.</span><span class=\"p\">,</span> <span class=\"mf\">1.</span><span class=\"p\">,</span> <span class=\"mf\">4.</span><span class=\"p\">])</span>\n<span class=\"n\">batch</span><span class=\"p\">[</span><span class=\"mi\">2</span><span class=\"p\">,</span> <span class=\"mi\">0</span><span class=\"p\">]</span> <span class=\"o\">-&gt;</span> <span class=\"mf\">2.0</span>\n<span class=\"n\">batch</span><span class=\"p\">[:</span><span class=\"mi\">2</span><span class=\"p\">]</span>   <span class=\"o\">-&gt;</span> <span class=\"n\">tensor</span><span class=\"p\">([[</span><span class=\"mf\">3.</span><span class=\"p\">,</span> <span class=\"mf\">2.</span><span class=\"p\">],</span>\n        <span class=\"p\">[</span><span class=\"mf\">4.</span><span class=\"p\">,</span> <span class=\"mf\">3.</span><span class=\"p\">]])</span>\n</code></pre></div></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "19340cdc194ab33425f9fe69ba2f1751",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"the-aha-moment-why-we-need\">The \"Aha!\" Moment: Why We Need <code>@</code></h2>\n<span class=\"paragraph\">Suppose we have our batch of 4 houses, each with 2 features. We also have a set of \"weights\" that tell us how important each feature is. We want to multiply our houses by our weights to get a prediction.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "083cbbe70802e326dc8e58fb2c295b5c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Kclp",
+      "code_hash": "7d6069faac90764c7bce7b887970e462",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">If we try to use standard multiplication <code>*</code>, PyTorch will try to match up the numbers element by element. </span>\n<span class=\"paragraph\">We don't want element-wise multiplication. We want to apply our <code>(2, 1)</code> weights to <em>every single row</em> of our <code>(4, 2)</code> batch simultaneously.</span>\n<span class=\"paragraph\">We need <strong>Matrix Multiplication</strong>, represented in PyTorch by the <code>@</code> symbol.</span>\n<div class=\"language-python codehilite\"><pre><span></span><code><span class=\"n\">batch</span> <span class=\"o\">=</span> <span class=\"n\">torch</span><span class=\"o\">.</span><span class=\"n\">tensor</span><span class=\"p\">([</span>\n    <span class=\"p\">[</span><span class=\"mf\">3.0</span><span class=\"p\">,</span> <span class=\"mf\">2.0</span><span class=\"p\">],</span>\n    <span class=\"p\">[</span><span class=\"mf\">4.0</span><span class=\"p\">,</span> <span class=\"mf\">3.0</span><span class=\"p\">],</span>\n    <span class=\"p\">[</span><span class=\"mf\">2.0</span><span class=\"p\">,</span> <span class=\"mf\">1.0</span><span class=\"p\">],</span>\n    <span class=\"p\">[</span><span class=\"mf\">5.0</span><span class=\"p\">,</span> <span class=\"mf\">4.0</span><span class=\"p\">],</span>\n<span class=\"p\">])</span> <span class=\"c1\"># shape: (4, 2)</span>\n\n<span class=\"n\">weights</span> <span class=\"o\">=</span> <span class=\"n\">torch</span><span class=\"o\">.</span><span class=\"n\">tensor</span><span class=\"p\">([</span>\n    <span class=\"p\">[</span><span class=\"mf\">50.0</span><span class=\"p\">],</span>\n    <span class=\"p\">[</span><span class=\"mf\">25.0</span><span class=\"p\">],</span>\n<span class=\"p\">])</span> <span class=\"c1\"># shape: (2, 1)</span>\n\n<span class=\"c1\"># Matrix Multiplication</span>\n<span class=\"n\">predictions</span> <span class=\"o\">=</span> <span class=\"n\">batch</span> <span class=\"o\">@</span> <span class=\"n\">weights</span>\n</code></pre></div>\n<div class=\"language-python codehilite\"><pre><span></span><code><span class=\"n\">batch</span><span class=\"o\">.</span><span class=\"n\">shape</span>   <span class=\"o\">-&gt;</span> <span class=\"p\">(</span><span class=\"mi\">4</span><span class=\"p\">,</span> <span class=\"mi\">2</span><span class=\"p\">)</span>\n<span class=\"n\">weights</span><span class=\"o\">.</span><span class=\"n\">shape</span> <span class=\"o\">-&gt;</span> <span class=\"p\">(</span><span class=\"mi\">2</span><span class=\"p\">,</span> <span class=\"mi\">1</span><span class=\"p\">)</span>\n<span class=\"n\">predictions</span>   <span class=\"o\">-&gt;</span> <span class=\"n\">tensor</span><span class=\"p\">([[</span><span class=\"mf\">200.</span><span class=\"p\">],</span>\n        <span class=\"p\">[</span><span class=\"mf\">275.</span><span class=\"p\">],</span>\n        <span class=\"p\">[</span><span class=\"mf\">125.</span><span class=\"p\">],</span>\n        <span class=\"p\">[</span><span class=\"mf\">350.</span><span class=\"p\">]])</span>\n<span class=\"n\">predictions</span><span class=\"o\">.</span><span class=\"n\">shape</span> <span class=\"o\">-&gt;</span> <span class=\"p\">(</span><span class=\"mi\">4</span><span class=\"p\">,</span> <span class=\"mi\">1</span><span class=\"p\">)</span>\n</code></pre></div>\n<span class=\"paragraph\">Look at what happens to the shapes:</span>\n<marimo-tex class=\"arithmatex\">||[\n(4, 2) @ (2, 1) \nightarrow (4, 1)\n||]</marimo-tex><span class=\"paragraph\">The inner dimensions (<code>2</code> and <code>2</code>) snap together and collapse. We are left with a shape of <code>(4, 1)</code>: exactly 4 predictions, one for each house. We just processed the entire batch in a single operation, without a single <code>for</code> loop.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "emfo",
+      "code_hash": "d5cd303176bb23cebcce9a4083de12a0",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"the-reality-check-adapting-shapes\">The Reality Check: Adapting Shapes</h2>\n<span class=\"paragraph\">In the real world, your data rarely arrives in the exact perfect shape for matrix multiplication. Sometimes the numbers are right, but the Lego blocks won't snap together.</span>\n<span class=\"paragraph\">This is why PyTorch gives us tools to bend and adapt our tensors:</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Hstk",
+      "code_hash": "7d2c567b3cc5e76ef6b3347a83285227",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "nWHF",
+      "code_hash": "dbfb2611388657a14c98f9aa019af465",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><div class=\"language-python codehilite\"><pre><span></span><code><span class=\"n\">v</span> <span class=\"o\">=</span> <span class=\"n\">torch</span><span class=\"o\">.</span><span class=\"n\">tensor</span><span class=\"p\">([</span><span class=\"mf\">1.0</span><span class=\"p\">,</span> <span class=\"mf\">2.0</span><span class=\"p\">,</span> <span class=\"mf\">3.0</span><span class=\"p\">])</span>\n\n<span class=\"n\">v</span><span class=\"o\">.</span><span class=\"n\">shape</span>\n<span class=\"n\">v</span><span class=\"o\">.</span><span class=\"n\">unsqueeze</span><span class=\"p\">(</span><span class=\"mi\">0</span><span class=\"p\">)</span><span class=\"o\">.</span><span class=\"n\">shape</span>\n<span class=\"n\">v</span><span class=\"o\">.</span><span class=\"n\">unsqueeze</span><span class=\"p\">(</span><span class=\"mi\">1</span><span class=\"p\">)</span><span class=\"o\">.</span><span class=\"n\">shape</span>\n<span class=\"n\">v</span><span class=\"o\">.</span><span class=\"n\">unsqueeze</span><span class=\"p\">(</span><span class=\"mi\">1</span><span class=\"p\">)</span><span class=\"o\">.</span><span class=\"n\">T</span><span class=\"o\">.</span><span class=\"n\">shape</span>\n</code></pre></div>\n<div class=\"language-python codehilite\"><pre><span></span><code><span class=\"n\">v</span><span class=\"o\">.</span><span class=\"n\">shape</span>               <span class=\"o\">-&gt;</span> <span class=\"p\">(</span><span class=\"mi\">3</span><span class=\"p\">,)</span>\n<span class=\"n\">v</span><span class=\"o\">.</span><span class=\"n\">unsqueeze</span><span class=\"p\">(</span><span class=\"mi\">0</span><span class=\"p\">)</span><span class=\"o\">.</span><span class=\"n\">shape</span>  <span class=\"o\">-&gt;</span> <span class=\"p\">(</span><span class=\"mi\">1</span><span class=\"p\">,</span> <span class=\"mi\">3</span><span class=\"p\">)</span>\n<span class=\"n\">v</span><span class=\"o\">.</span><span class=\"n\">unsqueeze</span><span class=\"p\">(</span><span class=\"mi\">1</span><span class=\"p\">)</span><span class=\"o\">.</span><span class=\"n\">shape</span>  <span class=\"o\">-&gt;</span> <span class=\"p\">(</span><span class=\"mi\">3</span><span class=\"p\">,</span> <span class=\"mi\">1</span><span class=\"p\">)</span>\n<span class=\"n\">v</span><span class=\"o\">.</span><span class=\"n\">unsqueeze</span><span class=\"p\">(</span><span class=\"mi\">1</span><span class=\"p\">)</span><span class=\"o\">.</span><span class=\"n\">T</span><span class=\"o\">.</span><span class=\"n\">shape</span> <span class=\"o\">-&gt;</span> <span class=\"p\">(</span><span class=\"mi\">1</span><span class=\"p\">,</span> <span class=\"mi\">3</span><span class=\"p\">)</span>\n</code></pre></div>\n<ul>\n<li><code>unsqueeze(0)</code> adds a new axis in front</li>\n<li><code>unsqueeze(1)</code> adds a new axis after the first one</li>\n<li><code>.T</code> swaps rows and columns for a 2D tensor</li>\n</ul>\n<span class=\"paragraph\">Whenever a matrix multiplication fails with a \"shape mismatch\" error, your first instinct should be to check if you need to <code>unsqueeze</code> an axis or transpose (<code>.T</code>) a matrix to make the inner dimensions line up.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    }
+  ]
+}

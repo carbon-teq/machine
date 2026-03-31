@@ -1,0 +1,93 @@
+---
+title: Projections & Dot Products
+description: Measuring alignment and shadows.
+---
+
+import DotProductVis from '@/components/interactive/linear-algebra/DotProductVis';
+
+# Projections & Dot Products: The Shadow of Data
+
+We know how to add vectors and scale them. But how do we **compare** them?
+How do we know if two vectors are pointing in the same direction, or if they are completely unrelated?
+
+Let's start with an experiment.
+Below are two vectors: <span style={{color: '#3b82f6'}}>**Vector A (Blue)**</span> and <span style={{color: '#ef4444'}}>**Vector B (Red)**</span>.
+Try dragging them around.
+
+<DotProductVis />
+
+Notice the **Green Line**. This is the "Shadow" that Blue casts onto Red.
+*   When the vectors point in the same direction, the shadow is long.
+*   When they are perpendicular ($90^\circ$), the shadow disappears.
+*   When they point away from each other, the shadow goes backwards (and the Dot Product becomes negative).
+
+This "Shadow" is the key to understanding similarity.
+
+## Geometric Intuition: The Projection
+
+Mathematically, this shadow is called the **Projection of $\mathbf{a}$ onto $\mathbf{b}$**.
+
+Imagine shining a light source perpendicular to vector $\mathbf{b}$. The shadow cast by $\mathbf{a}$ tells us **how much of $\mathbf{a}$ goes in the direction of $\mathbf{b}$**.
+
+This gives us a way to measure **Alignment**.
+If two vectors are perfectly aligned, the projection is maximized. If they are orthogonal (perpendicular), the projection is zero.
+
+## The Dot Product
+
+The **Dot Product** (written $\mathbf{a} \cdot \mathbf{b}$) is the tool we use to calculate this.
+
+$$
+\mathbf{a} \cdot \mathbf{b} = ||\mathbf{a}|| \ ||\mathbf{b}|| \ \cos(\theta)
+$$
+
+It combines two things:
+1.  **Magnitude:** How long are the vectors? ($||\mathbf{a}||$ and $||\mathbf{b}||$)
+2.  **Direction:** How aligned are they? ($\cos(\theta)$)
+
+If you look at the formula closely, $||\mathbf{a}|| \cos(\theta)$ is exactly the **length of the shadow**.
+So the Dot Product is just: **(Shadow Length) $\times$ (Length of Target)**.
+
+## The Algebraic Formula
+
+Calculating angles ($\theta$) is slow for computers. Luckily, there is a faster way.
+If we have the coordinates of the vectors, we can just multiply and add:
+
+$$
+\mathbf{a} \cdot \mathbf{b} = a_1 b_1 + a_2 b_2
+$$
+
+<Callout title="Why are these the same?" type="tip">
+It is a beautiful fact of mathematics that these two completely different methods (Geometry vs. Algebra) give the exact same number. This link allows us to calculate geometric properties (like angles) using simple multiplication.
+</Callout>
+
+## Interpreting the Result
+
+The number you get from a dot product tells you about the relationship between the vectors:
+
+*   **Positive (+):** The vectors point in the **same general direction**.
+*   **Zero (0):** The vectors are **Perpendicular** (Orthogonal). They have *nothing* in common.
+*   **Negative (-):** The vectors point in **opposite directions**.
+
+## AI/ML Relevance
+
+<Callout title="Cosine Similarity: The Recommendation Engine" type="tip">
+How does Netflix know which movies you'll like?
+It represents your taste as a vector $\mathbf{u}$ and every movie as a vector $\mathbf{m}$.
+
+To find the best match, it calculates the **Cosine Similarity**:
+
+$$ \text{Similarity} = \frac{\mathbf{u} \cdot \mathbf{m}}{||\mathbf{u}|| \ ||\mathbf{m}||} = \cos(\theta) $$
+
+By dividing by the lengths, we ignore *magnitude* (how many movies you've watched) and focus purely on *direction* (what *kind* of movies you like).
+*   Similarity = 1: Perfect match.
+*   Similarity = 0: Unrelated.
+*   Similarity = -1: You will hate this movie.
+</Callout>
+
+<Callout title="Neural Networks: Pattern Matching" type="tip">
+A neuron in a neural network calculates a dot product between an input $\mathbf{x}$ and a weight vector $\mathbf{w}$.
+$$ z = \mathbf{w} \cdot \mathbf{x} + b $$
+The weight vector $\mathbf{w}$ represents a "template" or "pattern" the neuron is looking for.
+*   If the input $\mathbf{x}$ matches the pattern $\mathbf{w}$, the dot product is high, and the neuron fires.
+*   If the input is unrelated (orthogonal), the dot product is zero, and the neuron stays silent.
+</Callout>

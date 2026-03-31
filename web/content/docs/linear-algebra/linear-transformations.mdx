@@ -1,0 +1,99 @@
+---
+title: Linear Transformations
+description: Functions that warp space itself.
+---
+
+# Linear Transformations: Warping Space
+
+We have vectors (data) and we have linear combinations (movement). Now, we need a way to **process** this data.
+
+Imagine you have a photo on your phone. You want to rotate it 90 degrees. Or imagine you have a dataset of house prices, but the units are all wrong (sq ft vs meters), and you need to squash one axis to make them comparable.
+
+You need a function. In calculus, functions take a number and give you a number ($f(x) = x^2$). In linear algebra, functions take a **vector** and give you a **vector**. These functions are called **Linear Transformations**. They don't just move one point; they move *every* point in space at the same time, keeping the grid structure intact.
+
+## Geometric Intuition
+
+Visually, a linear transformation is a **warp** of the 2D plane (or 3D space). Imagine the grid lines of a graph are printed on a sheet of infinite rubber fabric. A linear transformation can **stretch** the fabric, **squish** it, **rotate** it, or **shear** it (pushing the top sideways).
+
+<Callout title="The Two Golden Rules" type="important">
+To be a "Linear" transformation, the warp must follow two strict rules:
+1.  **Grid lines must remain parallel and evenly spaced.** (No curving or warping like a funhouse mirror).
+2.  **The Origin $(0,0)$ must stay fixed in place.** (No simply shifting the whole graph; that's called an "Affine" transformation).
+</Callout>
+
+If you follow these rules, the transformation is "Linear."
+
+## Formal Notation: The Matrix
+
+Here is the magic trick of linear algebra. Because the grid lines stay parallel and evenly spaced, you don't need to track where *every* point goes. You only need to track **two points**: the basis vectors.
+
+*   $\hat{\imath} = \begin{bmatrix} 1 \\ 0 \end{bmatrix}$ (The unit vector pointing Right)
+*   $\hat{\jmath} = \begin{bmatrix} 0 \\ 1 \end{bmatrix}$ (The unit vector pointing Up)
+
+If you know where $\hat{\imath}$ lands and where $\hat{\jmath}$ lands, you know everything. We record these two "landing spots" in a $2 \times 2$ grid called a **Matrix**.
+
+$$
+\mathbf{A} = \begin{bmatrix}
+| & | \\
+\text{Where } \hat{\imath} \text{ lands} & \text{Where } \hat{\jmath} \text{ lands} \\
+| & |
+\end{bmatrix}
+$$
+
+### Symbol Dictionary
+*   $\mathbf{A}$: The Transformation Matrix (the function).
+*   $\mathbf{x}$: The input vector.
+*   $\mathbf{Ax}$: The output vector (transformed).
+*   $\hat{\imath}, \hat{\jmath}$: The basis vectors of our input space.
+
+## Simple Worked Example
+
+Let's perform a **Shear**. We want to keep $\hat{\imath}$ exactly where it is, but push $\hat{\jmath}$ to the right.
+
+1.  **Where does $\hat{\imath}$ go?** It stays at $\begin{bmatrix} 1 \\ 0 \end{bmatrix}$.
+2.  **Where does $\hat{\jmath}$ go?** It moves from $\begin{bmatrix} 0 \\ 1 \end{bmatrix}$ to $\begin{bmatrix} 1 \\ 1 \end{bmatrix}$ (Right 1, Up 1).
+
+We build our matrix $\mathbf{A}$ by simply plugging these columns in:
+
+$$
+\mathbf{A} = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}
+$$
+
+Now, let's see where this matrix takes a random point, say $\mathbf{v} = \begin{bmatrix} 2 \\ 1 \end{bmatrix}$.
+
+$$
+\mathbf{A}\mathbf{v} = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 2 \\ 1 \end{bmatrix}
+$$
+
+$$
+= 2 \cdot (\text{New } \hat{\imath}) + 1 \cdot (\text{New } \hat{\jmath})
+$$
+
+$$
+= 2 \begin{bmatrix} 1 \\ 0 \end{bmatrix} + 1 \begin{bmatrix} 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 2 \\ 0 \end{bmatrix} + \begin{bmatrix} 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 3 \\ 1 \end{bmatrix}
+$$
+
+The point $(2, 1)$ has been sheared over to $(3, 1)$.
+
+## AI/ML Relevance
+
+<Callout title="Neural Networks are just Chain-Linked Matrices" type="tip">
+When you look at a Deep Neural Network diagram, you see layers of neurons connected by lines.
+
+Mathematically, each layer is just a **Linear Transformation** (a matrix multiplication) followed by a non-linear squish (activation function).
+
+$$ \mathbf{y} = \sigma(\mathbf{W}\mathbf{x} + \mathbf{b}) $$
+
+*   $\mathbf{x}$ is your data.
+*   $\mathbf{W}$ is the **Weight Matrix**.
+
+Training a neural network is just searching for the right Matrix $\mathbf{W}$ that twists and stretches your data so that "Cats" end up on one side of the graph and "Dogs" end up on the other.
+</Callout>
+
+import LinearTransformationVis from '@/components/interactive/linear-algebra/LinearTransformationVis';
+
+<LinearTransformationVis />
+
+## Interactive Playground
+
+[Interactive Marimo Notebook: Matrix Playground](/notebooks/linear-transformations)

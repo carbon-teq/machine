@@ -1,0 +1,181 @@
+---
+title: Training a Neural Network
+description: Turning forward pass, loss, and backpropagation into a real PyTorch training loop.
+---
+
+import MarimoEmbed from '@/components/interactive/MarimoEmbed';
+
+# Training a Neural Network
+
+Suppose your classifier draws a terrible boundary.
+
+Blue points spill into the orange side. Orange points spill into the blue side. The model is wrong, but the more useful question is this:
+
+**How does it get less wrong?**
+
+Not by staring at one example forever, and not by solving the whole dataset in one giant burst. Instead, training works like repeated correction:
+
+1. Bring in data
+2. Make a guess
+3. Score the mistake
+4. Send the learning signal backward
+5. Nudge the parameters
+
+That repeating correction loop is **training**. The forward pass, loss function, backpropagation, and gradient descent lock together into one rhythm.
+
+## The Update Frequency Problem
+
+Imagine a dataset with 1,024 training examples. When exactly should we update our parameters?
+
+If we update the parameters after looking at just **one example**, the updates bounce around chaotically. One example might pull the boundary left, the next pulls it right. We also lose the speed of parallel matrix math.
+
+If we wait to look at **all 1,024 examples** before making a single update, training becomes incredibly slow. We have to do 1,024 forward passes just to take one tiny step. On large datasets, this won't even fit in memory.
+
+We need a middle ground. We chop the dataset into smaller chunks.
+
+- large enough to use vectorized computation efficiently
+- small enough to fit in memory
+- noisy enough to keep learning dynamic
+
+These chunks are called **mini-batches**.
+
+## The Rhythm of Training
+
+Because we process data in chunks, we need specific words to describe where we are in the training process.
+
+If we chop our 1,024 examples into chunks of 32:
+
+- A **batch** is the chunk itself.
+- The **batch size** is 32.
+- An **iteration** is one parameter update step using one batch. (It takes 32 iterations to get through our 1,024 examples).
+- An **epoch** means the model has seen the entire dataset once.
+
+$$
+\text{dataset} \rightarrow \text{batches} \rightarrow \text{iterations} \rightarrow \text{epochs}
+$$
+
+## Building the Machinery
+
+To build this loop in PyTorch, we need tools that handle each part of the rhythm.
+
+We need a way to shuffle our dataset and hand out chunks of 32 examples. PyTorch uses a `DataLoader` for this:
+
+```python
+dataset = TensorDataset(X, y)
+loader = DataLoader(dataset, batch_size=32, shuffle=True)
+```
+
+We need the model itself. We can stack layers together:
+
+```python
+model = nn.Sequential(
+    nn.Linear(2, 4),
+    nn.ReLU(),
+    nn.Linear(4, 1),
+)
+```
+
+We need to measure how wrong the model's guesses are. For binary classification, we compare the raw output scores (logits) against the targets using a loss function:
+
+```python
+criterion = nn.BCEWithLogitsLoss()
+```
+
+Finally, we need a mechanism to apply the gradients and nudge the weights. This is the optimizer:
+
+```python
+optimizer = optim.SGD(model.parameters(), lr=0.1)
+```
+
+## One Iteration In Slow Motion
+
+Inside the loop, we take one batch `xb` and its targets `yb`. The rhythm is always the same five steps:
+
+```python
+# 1. Make a guess (Forward pass)
+logits = model(xb)
+
+# 2. Score the mistake (Loss calculation)
+loss = criterion(logits, yb)
+
+# 3. Clear old gradients
+optimizer.zero_grad()
+
+# 4. Send the signal backward (Backpropagation)
+loss.backward()
+
+# 5. Nudge the parameters (Update step)
+optimizer.step()
+```
+
+When we call `loss.backward()`, PyTorch walks backward through the computation graph and fills in gradient tensors (like `weight.grad` and `bias.grad`) for every parameter. We do not manually type the chain rule; PyTorch applies it for us.
+
+Then `optimizer.step()` uses those gradients to adjust the weights, scaled by the learning rate (`lr=0.1`).
+
+## The Complete PyTorch Loop & Tracking Shapes
+
+Instead of just reading the code, let's run it. 
+
+This notebook builds the PyTorch machinery, inspects the exact tensor shapes during a forward pass, and then runs the complete 500-epoch training loop.
+
+<MarimoEmbed
+  notebookPath="/api/notebooks/neural_networks/pytorch_training_loop/"
+  title="The PyTorch Training Loop"
+  height="1400px"
+/>
+
+## Knobs Worth Turning
+
+Once the basic loop works, you can change the character of learning by adjusting a few key levers:
+
+- **Learning rate:** Often the most important knob. Too small is slow; too large makes training unstable.
+- **Batch size:** Smaller batches use less memory and add noise (which can help generalization). Larger batches are smoother and use hardware more efficiently.
+- **Epoch count:** More epochs give the model more chances to improve, but too many can lead to overfitting (memorizing the data instead of learning patterns).
+- **Optimizer:** `SGD` is conceptually clean, while `Adam` often converges faster in practice.
+
+## Symbol Dictionary
+
+| Symbol | Name | Meaning |
+| :--- | :--- | :--- |
+| $\mathbf{X}$ | **Input batch** | A tensor containing many training examples at once. |
+| $\mathbf{y}$ | **Target batch** | The correct outputs for that batch. |
+| $\mathbf{W}$ | **Weight matrix** | The learned linear rule inside a layer. |
+| $\mathbf{b}$ | **Bias vector** | The learned shift inside a layer. |
+| $\mathbf{z}$ | **Logits** | The model's raw output scores before converting to probabilities. |
+| $\hat{y}$ | **Predictions** | The probability-like outputs after applying a sigmoid to the logits. |
+| $C$ | **Batch loss** | A scalar measuring how wrong the predictions were. |
+| $\nabla C$ | **Gradient** | The collection of partial derivatives telling us how to change parameters. |
+
+## Interactive Lab
+
+Use this notebook to watch training become concrete:
+
+- change **dataset size**, **batch size**, and **epoch count**
+- see the exact **iterations per epoch**
+- track a tiny model's **loss curve** and **gradient norm trend**
+- connect "one update step" to the larger training rhythm
+
+<MarimoEmbed
+  notebookPath="/api/notebooks/neural_networks/training_execution_loop/"
+  title="Training Execution Loop Explorer"
+  height="900px"
+/>
+
+If you want to run or edit it locally:
+- Open notebook: `pnpm notebook:edit notebooks/neural_networks/training_execution_loop.py`
+- Re-export static embed: `uv run marimo export html-wasm notebooks/neural_networks/training_execution_loop.py -o public/notebooks/neural_networks/training_execution_loop --mode run --no-show-code -f`
+- Download source: [Training Execution Notebook](https://github.com/your-repo/machine/blob/main/web/notebooks/neural_networks/training_execution_loop.py)
+
+## Why This Matters In ML
+
+> [!NOTE]
+> Modern frameworks hide the derivative algebra, but they do not remove the logic. Every model still trains by moving data forward, measuring error, sending gradients backward, and updating parameters. Once that rhythm is clear, PyTorch stops feeling magical and starts feeling mechanical.
+
+This loop shows up everywhere:
+
+- image classification
+- recommendation systems
+- speech models
+- large language models
+
+The architecture changes. The training rhythm stays.

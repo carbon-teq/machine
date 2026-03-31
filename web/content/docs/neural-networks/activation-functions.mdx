@@ -1,0 +1,289 @@
+---
+title: Activation Functions
+description: Introducing non-linearity into neural networks.
+---
+
+# Activation Functions
+
+We just ran into a wall with XOR.
+
+One perceptron gives us one straight boundary, and one straight boundary is not enough.
+
+So a natural idea is: **what if we just stack more layers?**
+
+That sounds promising. One layer transforms the data, then another layer transforms it again. It feels like that should give us a much richer model.
+
+But if both layers are purely linear, nothing fundamentally new happens.
+
+$$
+y = W_2(W_1 x + b_1) + b_2 = (W_2 W_1)x + (W_2 b_1 + b_2)
+$$
+
+That whole stack still collapses to a single linear rule:
+
+$$
+y = W' x + b'
+$$
+
+So here is the real snag.
+
+Adding more layers is not enough by itself. Something has to happen **between** the layers that actually changes the geometry.
+
+Before we name the missing ingredient, it helps to get clear on what is missing.
+
+## What If We Could Bend Space?
+
+So far we have been talking about one neuron at a time. But a real layer is a whole group of neurons firing in parallel.
+
+Suppose a layer has three neurons. Each neuron computes its own raw score:
+
+$$
+\begin{aligned}
+z_1 &= \mathbf{w}_1 \mathbf{x} + b_1 \\
+z_2 &= \mathbf{w}_2 \mathbf{x} + b_2 \\
+z_3 &= \mathbf{w}_3 \mathbf{x} + b_3
+\end{aligned}
+$$
+
+If you look at them together, these are just a **system of linear equations** in the input vector $\mathbf{x}$.
+
+Instead of writing them one by one, we stack them into a single vector:
+
+$$
+\mathbf{z} =
+\begin{bmatrix}
+z_1 \\
+z_2 \\
+z_3
+\end{bmatrix}
+=
+\mathbf{W}\mathbf{x} + \mathbf{b}
+$$
+
+This is the key connection:
+
+- each neuron contributes one linear rule
+- a whole layer collects those rules into a matrix
+- that matrix acts like a function on the input space
+
+In linear algebra language, the layer is performing a **linear transformation** plus a bias shift. It can rotate, stretch, compress, and shift the space. But it still treats the whole space according to one consistent global rule.
+
+And this matters, because linear transformations preserve the basic straightness of space:
+
+- lines stay lines
+- planes stay planes
+- parallel structure stays parallel
+
+So a purely linear network can rearrange space, but it cannot truly **bend** it. It cannot really say, "points over here should follow one behavior, but points over there should follow another."
+
+And that is exactly the ability we want.
+
+What if we could take space, fold part of it, flatten another part, and let different regions follow slightly different linear rules?
+
+That would give us something much richer than one global straight-line transformation. It would give us **piecewise linear behavior**. And the moment you want piecewise behavior, you are asking for some kind of non-linearity to enter the system.
+
+That missing ingredient is an **activation function**.
+
+## When A Neuron Decides
+
+A neuron first computes a raw score:
+
+$$
+z = Wx + b
+$$
+
+You can think of $z$ as the neuron's internal evidence.
+
+Now ask a very natural question: should every raw score just flow straight through to the next layer?
+
+Not really.
+
+Sometimes we want a neuron to:
+
+- ignore weak or negative evidence
+- squash very large values into a stable range
+- turn a raw score into something that behaves like a probability
+
+That is the job of the activation function. It takes the raw score $z$ and turns it into the signal that moves forward:
+
+$$
+a = g(z)
+$$
+
+Now the neuron is not just producing a score. It is also deciding how much of that score deserves to survive.
+
+## The Simplest Useful Hinge
+
+The most common hidden-layer activation today is **ReLU**:
+
+$$
+\text{ReLU}(z) = \max(0, z)
+$$
+
+This rule is simple:
+
+- if the score is negative, output $0$
+- if the score is positive, keep it
+
+That tiny change turns out to matter a lot.
+
+Why? Because the network is no longer forced to use one global straight-line rule everywhere. In one region of space, a neuron may wake up. In another region, it may go silent. Two inputs that looked similar before can now be treated differently.
+
+This is the first moment the network starts to feel genuinely expressive.
+
+ReLU, in particular, acts like a hinge:
+
+- one side passes through
+- the other side gets flattened
+
+So a network like
+
+$$
+\text{Linear} \rightarrow \text{ReLU} \rightarrow \text{Linear}
+$$
+
+can do something a purely linear stack never could.
+
+The first linear layer moves the space into a new coordinate system. Then ReLU steps in with a non-linear rule:
+
+- points on one side of a neuron's boundary stay alive
+- points on the other side get clipped to zero
+
+Now the next linear layer is not working on one smoothly transformed space anymore. It is working on a space that has been cut into regions and reshaped differently in each region.
+
+That is the moment the network stops behaving like one big matrix and starts behaving like a richer function.
+
+This is why people say activations let networks **bend** or **fold** space.
+
+It is not just a pretty metaphor. The activation creates piecewise behavior, and that piecewise behavior is what lets curved-looking decision boundaries emerge from simple building blocks.
+
+Without the activation, multiple layers collapse into one linear transformation. With the activation, the network can build different local rules in different regions of the input space.
+
+## Three Common Personalities
+
+Once this picture is clear, the usual activation functions feel much less mysterious. They are all different answers to the same question:
+
+**How should a neuron transform its raw score before handing it to the next layer?**
+
+### Sigmoid
+
+Sigmoid is the function $\sigma(z) = 1 / (1 + e^{-z})$.
+
+Sigmoid squashes every input into the range $(0, 1)$.
+
+- large negative scores move close to $0$
+- large positive scores move close to $1$
+- middling scores stay in the middle
+
+That makes sigmoid useful when we want the final output to behave like a probability in binary classification.
+
+The downside is that the curve becomes very flat at the extremes, so gradients can become tiny during training.
+
+### Tanh
+
+Tanh is the function $\tanh(z) = (e^z - e^{-z}) / (e^z + e^{-z})$.
+
+Tanh is similar to sigmoid, but it squashes into $(-1, 1)$ instead of $(0, 1)$.
+
+- negative scores stay negative
+- positive scores stay positive
+- values near $0$ remain near the center
+
+Because it is centered around zero, tanh often feels a bit more natural than sigmoid inside hidden layers. But it still suffers from flat tails and vanishing gradients.
+
+### ReLU
+
+ReLU is the function $\text{ReLU}(z) = \max(0, z)$.
+
+ReLU does not squash positive values at all. It simply cuts off the negative side.
+
+- negative scores become $0$
+- positive scores pass through unchanged
+
+That makes the rule cheap to compute and often easier to train in deep networks.
+
+Its main weakness is the **dead ReLU** problem: if a neuron stays on the negative side all the time, it can get stuck outputting only zeros.
+
+## Writing The Neuron Cleanly
+
+Now the hidden-layer equation should feel much more natural:
+
+$$
+z = Wx + b
+$$
+
+$$
+a = g(z)
+$$
+
+Or, written in one line:
+
+$$
+a = g(Wx + b)
+$$
+
+The linear part gathers evidence. The activation decides how that evidence should be expressed.
+
+### Symbol Dictionary
+
+| Symbol | Name | Intuition |
+| :--- | :--- | :--- |
+| $x$ | **Input vector** | The features arriving at the neuron. |
+| $W$ | **Weight matrix** | The learned linear rule for combining those features. |
+| $b$ | **Bias** | A baseline shift for the raw score. |
+| $z$ | **Pre-activation** | The raw score before any non-linear transformation. |
+| $g$ | **Activation function** | The rule that reshapes or gates the raw score. |
+| $a$ | **Activation** | The signal that gets passed to the next layer. |
+
+## Why Training Cares About The Choice
+
+Activation functions do two jobs at once. They change what the network can represent, and they change how easily the network can learn.
+
+During backpropagation, gradients must flow through these functions.
+
+- If the activation becomes too flat, gradients shrink and learning slows down.
+- If the activation shuts neurons off completely, some neurons may stop contributing.
+- If the activation keeps useful gradients alive, training tends to be faster and more stable.
+
+This is why activation choice is both a **representation** decision and an **optimization** decision.
+
+## Interactive Lab
+
+The reader should see two things at the same time:
+
+- how an activation changes the shape of a signal
+- how that choice changes what a network can express
+
+### Planned Interactive Components
+
+**1. Manim Animation: From Straight To Folded**
+*   **Visual:** Start with a 2D grid.
+*   **Action 1:** Apply one linear transformation and show that lines stay lines.
+*   **Action 2:** Apply ReLU and flatten the negative region.
+*   **Action 3:** Apply another linear map and show that the resulting boundary is no longer globally linear.
+*   **Insight:** The reader should feel that the non-linearity is the moment where the geometry truly changes.
+
+**2. Marimo Notebook: Activation Discovery Explorer**
+*   **View 1:** Plot $z$ and the transformed output $g(z)$ for Sigmoid, Tanh, ReLU, and Leaky ReLU.
+*   **View 2:** Plot the derivative alongside the activation.
+*   **View 3:** Show a tiny two-layer network fitting a non-linear pattern with different activation choices.
+*   **Insight:** Let the reader discover why some functions saturate, why ReLU is popular, and why the activation is the thing that unlocks non-linear behavior.
+
+## Why This Matters in ML
+
+> [!NOTE]
+> Hidden layers are useful only if they can do more than stack linear rules. Activation functions are what make deep networks genuinely more expressive than a single perceptron.
+
+In practice:
+
+- **Hidden layers:** usually use ReLU or one of its variants such as Leaky ReLU or GELU
+- **Binary classification output:** often uses Sigmoid
+- **Regression output:** often uses no activation at all
+- **Multi-class classification output:** usually uses Softmax
+
+## Key Questions
+
+- **Why are activation functions needed?** Because stacking linear layers still gives one linear map.
+- **What does an activation function do?** It transforms the neuron's raw score before passing it forward.
+- **Why is ReLU so common?** It is simple, effective, and often easier to train in deep networks.
+- **Why do Sigmoid and Tanh sometimes train poorly?** Their flat tails can make gradients very small.

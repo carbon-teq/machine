@@ -1,0 +1,99 @@
+---
+title: Matrix Multiplication
+description: Composing transformations to build complex systems.
+---
+
+# Matrix Multiplication: The Chain Reaction
+
+We know that a matrix is a function: it takes a vector and transforms it. But what if we want to apply *two* transformations?
+
+Imagine you are editing a photo. First, you want to **Rotate** it by 90 degrees. Then, you want to **Shear** it.
+
+You could do this in two steps:
+1.  Apply the Rotation matrix to every pixel.
+2.  Take the result and apply the Shear matrix to it.
+
+But this is slow. Is there a way to combine these two actions into a single "Super-Matrix" that does both at once? This process of smashing two transformations into one is called **Matrix Multiplication**.
+
+## Geometric Intuition: Tracking the Basis
+
+To find this "Super-Matrix," we just need to follow our golden rule: **Track the Basis Vectors.**
+
+Let's say we have two matrices:
+*   $\mathbf{A}$ (The second action, e.g., Shear)
+*   $\mathbf{B}$ (The first action, e.g., Rotate)
+
+We want to find the combined matrix $\mathbf{C} = \mathbf{AB}$.
+
+To find the first column of $\mathbf{C}$, we ask:
+*"If I apply $\mathbf{B}$ to $\hat{\imath}$, and then apply $\mathbf{A}$ to the result, where do I end up?"*
+
+To find the second column of $\mathbf{C}$, we ask:
+*"If I apply $\mathbf{B}$ to $\hat{\jmath}$, and then apply $\mathbf{A}$ to the result, where do I end up?"*
+
+Matrix multiplication isn't just random arithmetic. It is **function composition**. It is calculating the final destination of the grid after a sequence of movements.
+
+## Notation: The Order Matters
+
+In standard arithmetic, $3 \times 5$ is the same as $5 \times 3$.
+In linear algebra, **order is everything**.
+
+$$
+\mathbf{C} = \mathbf{A} \mathbf{B}
+$$
+
+This means "Apply $\mathbf{B}$ first, then apply $\mathbf{A}$."
+Think of it like functions: $f(g(x))$. The function closest to the variable ($g$) happens first.
+
+<Callout title="Non-Commutativity" type="warn">
+$\mathbf{AB} \neq \mathbf{BA}$
+
+**Try it yourself:**
+1.  Rotate your phone 90 degrees. Then flip it over.
+2.  Flip your phone over. Then rotate it 90 degrees.
+
+The phone ends up in a different orientation. The order of operations changes the result.
+</Callout>
+
+## The Mechanics: Column by Column
+
+How do we actually calculate the numbers?
+Let $\mathbf{B}$ have columns $\mathbf{b}_1$ and $\mathbf{b}_2$.
+The product $\mathbf{AB}$ is just $\mathbf{A}$ acting on each column of $\mathbf{B}$ separately.
+
+$$
+\mathbf{A} \mathbf{B} = \mathbf{A} \begin{bmatrix} \mathbf{b}_1 & \mathbf{b}_2 \end{bmatrix} = \begin{bmatrix} \mathbf{A}\mathbf{b}_1 & \mathbf{A}\mathbf{b}_2 \end{bmatrix}
+$$
+
+**Example:**
+Let $\mathbf{A} = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$ (Rotate 90°)
+Let $\mathbf{B} = \begin{bmatrix} 2 & 0 \\ 0 & 2 \end{bmatrix}$ (Scale by 2)
+
+To find $\mathbf{AB}$ (Scale then Rotate):
+1.  **First Column:** Apply Rotate ($\mathbf{A}$) to Scale's first col ($\begin{bmatrix} 2 \\ 0 \end{bmatrix}$).
+    $$ \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix} \begin{bmatrix} 2 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ 2 \end{bmatrix} $$
+2.  **Second Column:** Apply Rotate ($\mathbf{A}$) to Scale's second col ($\begin{bmatrix} 0 \\ 2 \end{bmatrix}$).
+    $$ \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix} \begin{bmatrix} 0 \\ 2 \end{bmatrix} = \begin{bmatrix} -2 \\ 0 \end{bmatrix} $$
+
+**Result:**
+$$ \mathbf{AB} = \begin{bmatrix} 0 & -2 \\ 2 & 0 \end{bmatrix} $$
+
+This new matrix represents a "Rotated Scaling."
+
+## AI/ML Relevance
+
+<Callout title="Deep Learning is a Chain of Matrices" type="tip">
+Why do we call it "Deep" Learning? Because we chain many layers together.
+
+$$ \mathbf{y} = \mathbf{W}_3 ( \mathbf{W}_2 ( \mathbf{W}_1 \mathbf{x} ) ) $$
+
+If we didn't have non-linear activation functions (like ReLU) in between, all these matrices would just collapse into one single matrix $\mathbf{W}_{total} = \mathbf{W}_3\mathbf{W}_2\mathbf{W}_1$.
+
+The power of Deep Learning comes from inserting non-linearities between these matrix multiplications, allowing the "Super-Function" to twist space in ways a single matrix never could.
+</Callout>
+
+<img src="/images/linear-algebra/matrix-multiplication.png" alt="Matrix multiplication as composition" width="100%" />
+
+## Interactive Playground
+
+[Interactive Marimo Notebook: Composition Playground](/notebooks/matrix-multiplication)

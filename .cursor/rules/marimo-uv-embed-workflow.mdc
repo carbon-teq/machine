@@ -1,0 +1,211 @@
+---
+description: Marimo notebook best practices, uv workflow, and embedding guide
+globs: 
+  - "web/notebooks/**/*.py"
+  - "web/content/docs/**/*.mdx"
+---
+
+# Project Workflow: Marimo + UV
+
+## 1. Running & Editing
+- **Always use `uv`** for Python commands.
+- Edit a notebook:
+  ```bash
+  pnpm notebook:edit notebooks/<topic>/<name>.py
+  ```
+- Or run the server to view all:
+  ```bash
+  pnpm notebook:serve
+  ```
+
+## 2. Static Export for Embedding
+- **WebAssembly HTML export (preferred for docs embeds):**
+  ```bash
+  uv run marimo export html-wasm notebooks/<topic>/<name>.py -o public/notebooks/<topic>/<name> --mode run --no-show-code -f
+  ```
+- **Key Flags:**
+  - `--mode run --no-show-code`: Required for clean readonly `html-wasm` embeds.
+  - **Dependencies (local export environment):** Managed via `pyproject.toml` in `web/`.
+  - **Dependencies (WASM runtime):** Only use packages compatible with Pyodide. Prefer `numpy`, `pandas`, `polars`, `scipy`. For `plotly`, install via `micropip` in a separate async cell and keep a local dependency for edit/validation flows.
+  - If a WASM notebook throws `ModuleNotFoundError`, add a `micropip.install(...)` cell first. If runtime issues persist, fall back to standard browser-compatible libraries.
+
+## 2.1 WASM Safety Checklist (Required for docs embeds)
+- Prefer `marimo export html-wasm` for anything embedded in docs.
+- Keep imports in the first cell and ensure they are Pyodide-compatible.
+- If using non-core packages, test exported notebook in-browser after export.
+- If package install is needed in-browser, use a separate cell with:
+  ```python
+  import micropip
+  await micropip.install("<package>")
+  ```
+  then import it in a later cell.
+
+## 2.2 Validate Before Export (Required)
+- Run static + runtime validation before exporting:
+  ```bash
+  cd web
+  pnpm notebook:validate notebooks/<topic>/<name>.py
+  ```
+- What this does:
+  - `marimo check` catches DAG/syntax/structural issues.
+  - `marimo run --headless` smoke test catches immediate runtime exceptions before export/build.
+
+## 3. Embedding in MDX
+- Use the `MarimoEmbed` component:
+  ```tsx
+  import MarimoEmbed from '@/components/interactive/MarimoEmbed';
+
+  <MarimoEmbed 
+    notebookPath="/notebooks/<topic>/<name>/index.html" 
+    title="Notebook Title"
+    height="800px"
+  />
+  ```
+- Add a download link to the source `.py` file (which now lives in `notebooks/` but can be exposed via Next.js public or GitHub).
+
+## 3.1 Alternate Path: FastAPI Backend Embed (Recommended for Torch-heavy notebooks)
+- Use this path when WASM/Pyodide package support is limited (for example `torch` issues in browser runtime).
+- Serve notebooks from a Python backend using `marimo.create_asgi_app()` mounted in FastAPI.
+- Prefer this route format on backend: `/api/notebooks/<topic>/<name>/`.
+- In `web/.env`, set:
+  ```bash
+  NEXT_PUBLIC_MARIMO_BASE_URL=http://localhost:8082
+  ```
+- In MDX, keep `notebookPath` relative and let `MarimoEmbed` prefix with env base URL:
+  ```tsx
+  <MarimoEmbed
+    notebookPath="/api/notebooks/<topic>/<name>/"
+    title="Notebook Title"
+    height="800px"
+  />
+  ```
+- Start backend server:
+  ```bash
+  cd web
+  pnpm notebook:serve
+  ```
+- Restart `pnpm dev` after changing `.env`.
+
+---
+
+# Marimo Fundamentals
+
+Marimo is a reactive notebook that differs from traditional notebooks in key ways:
+
+- Cells execute automatically when their dependencies change
+- Variables cannot be redeclared across cells
+- The notebook forms a directed acyclic graph (DAG)
+- The last expression in a cell is automatically displayed
+- UI elements are reactive and update the notebook automatically
+
+## Code Requirements
+
+1. All code must be complete and runnable
+2. Follow consistent coding style throughout
+3. Include descriptive variable names and helpful comments
+4. Import all modules in the first cell, always including `import marimo as mo`
+5. Never redeclare variables across cells
+6. Ensure no cycles in notebook dependency graph
+7. The last expression in a cell is automatically displayed, just like in Jupyter notebooks.
+8. Don't include comments in markdown cells
+9. Don't include comments in SQL cells
+10. Never define anything using `global`.
+
+## Reactivity
+
+Marimo's reactivity means:
+
+- When a variable changes, all cells that use that variable automatically re-execute
+- UI elements trigger updates when their values change without explicit callbacks
+- UI element values are accessed through `.value` attribute
+- You cannot access a UI element's value in the same cell where it's defined
+- Cells prefixed with an underscore (e.g. `_my_var`) are local to the cell and cannot be accessed by other cells
+
+## Best Practices
+
+<data_handling>
+- Use polars (or numpy/pandas) for data manipulation
+- Implement proper data validation
+- Handle missing values appropriately
+- Use efficient data structures
+- A variable in the last expression of a cell is automatically displayed as a table
+</data_handling>
+
+<visualization>
+- For matplotlib: use `plt.gca()` as the last expression instead of `plt.show()`
+- For plotly: return the figure object directly
+- For altair: return the chart object directly. Add tooltips where appropriate. You can pass polars dataframes directly to altair.
+- Include proper labels, titles, and color schemes
+- Make visualizations interactive where appropriate
+</visualization>
+
+<ui_elements>
+- Access UI element values with `.value` attribute (e.g., `slider.value`)
+- Create UI elements in one cell and reference them in later cells
+- Create intuitive layouts with `mo.hstack()`, `mo.vstack()`, and `mo.tabs()`
+- Prefer reactive updates over callbacks (marimo handles reactivity automatically)
+- Group related UI elements for better organization
+</ui_elements>
+
+<sql>
+- When writing duckdb, prefer using marimo's SQL cells, which start with `df = mo.sql(f"""<your query>""")` for DuckDB, or `df = mo.sql(f"""<your query>""", engine=engine)` for other SQL engines.
+- See the SQL with duckdb example for an example on how to do this
+- Don't add comments in cells that use `mo.sql()`
+</sql>
+
+## Troubleshooting
+
+Common issues and solutions:
+
+- **Circular dependencies:** Reorganize code to remove cycles in the dependency graph
+- **UI element value access:** Move access to a separate cell from definition
+- **Visualization not showing:** Ensure the visualization object is the last expression
+
+After generating a notebook, run `marimo check --fix` to catch and automatically resolve common formatting issues, and detect common pitfalls.
+
+## Available UI elements
+
+- `mo.ui.altair_chart(altair_chart)`
+- `mo.ui.button(value=None, kind='primary')`
+- `mo.ui.run_button(label=None, tooltip=None, kind='primary')`
+- `mo.ui.checkbox(label='', value=False)`
+- `mo.ui.date(value=None, label=None, full_width=False)`
+- `mo.ui.dropdown(options, value=None, label=None, full_width=False)`
+- `mo.ui.file(label='', multiple=False, full_width=False)`
+- `mo.ui.number(value=None, label=None, full_width=False)`
+- `mo.ui.radio(options, value=None, label=None, full_width=False)`
+- `mo.ui.refresh(options: List[str], default_interval: str)`
+- `mo.ui.slider(start, stop, value=None, label=None, full_width=False, step=None)`
+- `mo.ui.range_slider(start, stop, value=None, label=None, full_width=False, step=None)`
+- `mo.ui.table(data, columns=None, on_select=None, sortable=True, filterable=True)`
+- `mo.ui.text(value='', label=None, full_width=False)`
+- `mo.ui.text_area(value='', label=None, full_width=False)`
+- `mo.ui.data_explorer(df)`
+- `mo.ui.dataframe(df)`
+- `mo.ui.plotly(plotly_figure)`
+- `mo.ui.tabs(elements: dict[str, mo.ui.Element])`
+- `mo.ui.array(elements: list[mo.ui.Element])`
+- `mo.ui.form(element: mo.ui.Element, label='', bordered=True)`
+
+## Layout and utility functions
+
+- `mo.md(text)` - display markdown
+- `mo.stop(predicate, output=None)` - stop execution conditionally
+- `mo.output.append(value)` - append to the output when it is not the last expression
+- `mo.output.replace(value)` - replace the output when it is not the last expression
+- `mo.Html(html)` - display HTML
+- `mo.image(image)` - display an image
+- `mo.hstack(elements)` - stack elements horizontally
+- `mo.vstack(elements)` - stack elements vertically
+- `mo.tabs(elements)` - create a tabbed interface
+
+## Examples
+
+<example title="Markdown cell">
+import marimo as mo
+
+@app.cell
+def _(mo):
+    mo.md("# Hello Marimo")
+    return
+</example>

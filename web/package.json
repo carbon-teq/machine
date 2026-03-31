@@ -1,0 +1,46 @@
+{
+  "name": "web",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "start": "next start",
+    "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
+    "notebook:validate": "./scripts/validate-marimo.sh",
+    "notebook:serve": "uv run uvicorn server:app --host 0.0.0.0 --port 8082 --reload",
+    "notebook:edit": "uv run marimo edit",
+    "postinstall": "fumadocs-mdx",
+    "lint": "biome check",
+    "format": "biome format --write"
+  },
+  "dependencies": {
+    "@pixi/react": "^8.0.5",
+    "@takumi-rs/image-response": "^0.70.4",
+    "fumadocs-core": "16.6.10",
+    "fumadocs-mdx": "14.2.9",
+    "fumadocs-ui": "16.6.10",
+    "katex": "^0.16.37",
+    "lucide-react": "^0.577.0",
+    "mafs": "^0.21.0",
+    "manim-web": "^0.3.15",
+    "next": "16.1.6",
+    "pixi.js": "^8.16.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
+    "tailwind-merge": "^3.5.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.6",
+    "@tailwindcss/postcss": "^4.2.1",
+    "@types/mdx": "^2.0.13",
+    "@types/node": "^25.3.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.9.3"
+  }
+}

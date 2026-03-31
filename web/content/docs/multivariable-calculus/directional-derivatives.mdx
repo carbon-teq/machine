@@ -1,0 +1,104 @@
+---
+title: Directional Derivatives
+description: What happens when you walk diagonally.
+---
+
+# Directional Derivatives
+
+Partial derivatives answer two axis-aligned questions:
+- what happens if I move only in $x$?
+- what happens if I move only in $y$?
+
+But in real life, we rarely walk exactly East/West or North/South.
+We walk in arbitrary directions, often diagonally.
+
+So we need a new question:
+**"What is the slope if I move in this specific direction?"**
+
+## 1. Geometric Intuition
+
+Stand at one point on the surface and pick a direction arrow $\mathbf{u}$.
+The **directional derivative** is the slope you feel if you move a tiny amount along that arrow.
+
+It combines local geometry (the gradient) with your chosen direction.
+
+## 2. Formal Notation
+
+For a unit direction vector
+$$
+\mathbf{u} =
+\begin{bmatrix}
+u_1 \\
+u_2
+\end{bmatrix}
+$$
+the directional derivative is
+$$
+D_{\mathbf{u}}f = \nabla f \cdot \mathbf{u}
+$$
+
+## 3. Symbol Dictionary
+
+- $\nabla f$: gradient vector (points steepest uphill)
+- $\mathbf{u}$: unit direction vector (where you choose to move)
+- $D_{\mathbf{u}}f$: slope along direction $\mathbf{u}$
+
+## 4. Worked Example
+
+Let
+$$
+f(x,y)=x^2+y^2
+$$
+Then
+$$
+\nabla f(x,y)=
+\begin{bmatrix}
+2x \\
+2y
+\end{bmatrix}
+$$
+
+At $(1,1)$:
+$$
+\nabla f(1,1)=
+\begin{bmatrix}
+2 \\
+2
+\end{bmatrix}
+$$
+
+Choose diagonal direction
+$$
+\mathbf{u}=
+\frac{1}{\sqrt{2}}
+\begin{bmatrix}
+1 \\
+1
+\end{bmatrix}
+$$
+
+Then
+$$
+D_{\mathbf{u}}f
+=
+\nabla f(1,1)\cdot \mathbf{u}
+=
+\begin{bmatrix}
+2 \\
+2
+\end{bmatrix}
+\cdot
+\frac{1}{\sqrt{2}}
+\begin{bmatrix}
+1 \\
+1
+\end{bmatrix}
+=
+\frac{4}{\sqrt{2}}
+=2\sqrt{2}
+$$
+
+> [!NOTE]
+> **ML Relevance**
+> The gradient gives the best uphill direction, but optimization methods can choose other directions too (for stability, momentum, constraints, or preconditioning). Directional derivatives tell us how good any chosen direction is.
+

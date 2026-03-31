@@ -1,0 +1,167 @@
+---
+title: Curriculum Outline
+description: The complete roadmap for learning Machine Learning Mathematics and Deep Learning Foundations.
+---
+
+# Interactive ML Learning Platform Curriculum
+
+This curriculum outlines the interactive journey for learning Machine Learning math and deep learning concepts. Each topic connects high-level intuition (video), mathematical notation (MDX), visual geometric intuition (Manim), and interactive experimentation (Marimo).
+
+## Lesson Delivery Standard (Applied to Every Topic)
+
+For each topic in this roadmap, we follow one consistent structure:
+
+1. **The Hook (The "Why"):** Create a need for the concept before introducing it.
+2. **Geometric Intuition (The "What"):** Visualizing the concept in space (Manim/Diagrams).
+3. **Formal Notation (The "How"):** Standard LaTeX definitions.
+4. **The Mechanics (Worked Example):** Step-by-step calculation.
+5. **Interactive Lab (Marimo/PyTorch):** Real code execution.
+6. **AI/ML Relevance:** Connecting theory to practice.
+7. **Key Questions Answered:** A checklist of understanding for the student.
+
+---
+
+## Phase 1: Mathematical Foundations
+
+A strong fundamental geometric intuition of mathematics is required before deeply understanding neural architectures.
+
+### Section 1: Linear Algebra (3Blue1Brown)
+1.  **Vectors:**
+    *   *Concept:* Geometric vs. Numeric representations.
+    *   *Key Questions:* What differentiates a point from a vector? How does a list of numbers represent movement in space?
+2.  **Linear Combinations, Span, and Basis Vectors:**
+    *   *Concept:* Building the coordinate system.
+    *   *Key Questions:* How can two arrows reach any point on a plane? What does "linearly independent" mean?
+3.  **Linear Transformations and Matrices:**
+    *   *Concept:* Matrices as visual transformations.
+    *   *Key Questions:* How can a matrix move the entire fabric of space? How do we squish, rotate, or shear space?
+4.  **Matrix Multiplication:**
+    *   *Concept:* Composition of transformations.
+    *   *Key Questions:* What does it mean to apply one transformation after another?
+5.  **3D Linear Transformations:**
+    *   *Concept:* Extending into three dimensions.
+    *   *Key Questions:* How does the right-hand rule orient us in 3D space?
+6.  **The Determinant:**
+    *   *Concept:* Scaling factors of area/volume.
+    *   *Key Questions:* How do we measure the "stretching" of space? What does a zero determinant mean for solvability?
+7.  **Inverse Matrices, Column Space and Null Space:**
+    *   *Concept:* Reversing transformations.
+    *   *Key Questions:* Can we reverse a transformation? What information is lost when we squash space?
+8.  **Dot Products and Duality:**
+    *   *Concept:* Projection geometry.
+    *   *Key Questions:* How do we measure how much two vectors point in the same direction?
+9.  **Eigenvectors and Eigenvalues:**
+    *   *Concept:* Invariant vectors.
+    *   *Key Questions:* Which vectors stay on their own span during a transformation?
+
+### Section 2: Calculus (3Blue1Brown)
+1.  **The Essence of Calculus:**
+    *   *Concept:* Area vs. Slope intuition.
+    *   *Key Questions:* How do we measure change in a continuously changing world?
+2.  **The Derivative:**
+    *   *Concept:* Instantaneous rate of change.
+    *   *Key Questions:* What is the "slope" of a curve at a single point?
+3.  **Chain Rule:**
+    *   *Concept:* The engine of backpropagation.
+    *   *Key Questions:* How do changes propagate through a system of connected parts?
+4.  **Partial Derivatives:**
+    *   *Concept:* Gradients in high dimensions.
+    *   *Key Questions:* How do we find the slope on a 3D hill? How does the output change if I only wiggle one input?
+5.  **The Gradient Vector:**
+    *   *Concept:* The direction of steepest ascent.
+    *   *Key Questions:* Which direction is "steepest uphill" from where we are standing?
+
+---
+
+## Phase 2: Neural Networks & Deep Learning
+
+We build the neural network from the ground up, starting with a single neuron and scaling to deep architectures.
+
+### Section 1: The Perceptron & Linearity
+1.  **The Perceptron:**
+    *   *Concept:* The fundamental building block.
+    *   *Visual:* A single neuron as a linear decision boundary.
+    *   *Key Insight:* Why Perceptrons are good **Linear Approximators**.
+    *   *Key Questions:* How can a simple weighted sum make a decision? What is a neuron mathematically?
+2.  **The Limits of Linearity:**
+    *   *Problem:* **Non-linearly separable data** (e.g., the XOR problem).
+    *   *Visual:* Showing why a single straight line fails to classify XOR data.
+    *   *Solution:* The need for hidden layers and non-linear activation functions.
+    *   *Key Questions:* Why can't a straight line solve the XOR problem? What does "linearly separable" mean?
+3.  **Gradient Descent (The "Learning" Part):**
+    *   *Concept:* Minimizing the error.
+    *   *Visual:* Rolling a ball down a cost surface (Loss Landscape).
+    *   *Interactive:* Manually adjusting weights to see the loss decrease.
+    *   *Key Questions:* How do we find the lowest point in a dark valley just by feeling the slope? What is the "learning rate"?
+
+### Section 2: Deep Neural Networks
+4.  **Activation Functions:**
+    *   *Concept:* Introducing non-linearity (ReLU, Sigmoid, Tanh).
+    *   *Visual:* Bending the decision boundary.
+    *   *Key Questions:* How do we introduce "bending" into our decision boundaries? Why do we need non-linearity?
+5.  **Forward Propagation:**
+    *   *Mechanics:* Matrix multiplication flowing through layers.
+    *   *Key Questions:* How does a signal flow from input to output?
+6.  **Backpropagation:**
+    *   *Concept:* The Chain Rule applied to networks.
+    *   *Visual:* Error signal flowing backward, updating weights to fix mistakes.
+    *   *Derivation:* Step-by-step calculus for a simple network.
+    *   *Key Questions:* How do we assign "blame" for an error to each weight in the network? Who is to blame for the error?
+
+### Section 3: Engineering & Practice
+7.  **Training a Neural Network (PyTorch):**
+    *   *Lab:* Building a training loop from scratch.
+    *   *Concepts:* Tensors, Autograd, Batches, Epochs.
+    *   *Interactive:* Live training visualization.
+    *   *Key Questions:* What are the moving parts of a training loop (Epochs, Batches, Learning Rate)? How do we actually code this?
+8.  **Regression vs. Classification:**
+    *   *Concept:* Different goals require different loss functions (MSE vs. Cross-Entropy).
+    *   *Visual:* Fitting a line vs. separating classes.
+    *   *Key Questions:* How does the shape of the answer change the way we measure error? Are we predicting a number or a category?
+
+---
+
+## Phase 3: Language Models (NLP)
+
+From predicting the next character to understanding context.
+
+### Section 1: Sequence Basics
+1.  **N-Gram Models:**
+    *   *Concept:* Probabilistic next-word prediction based on history.
+    *   *Lab:* Building a simple bigram/trigram model.
+    *   *Key Questions:* How much can we predict just by counting word pairs?
+2.  **Recurrent Neural Networks (RNNs):**
+    *   *Concept:* Handling sequential data and memory.
+    *   *Visual:* Unrolling the RNN loop over time.
+    *   *Issue:* Vanishing gradients and long-term dependencies.
+    *   *Key Questions:* How do we give a network "memory" of what it saw before? Why do gradients vanish?
+
+### Section 2: The Attention Revolution
+3.  **The Attention Mechanism:**
+    *   *Concept:* "Paying attention" to relevant parts of the sequence.
+    *   *Visual:* Heatmaps showing word-to-word relationships.
+    *   *Key Questions:* How can a model focus on specific words regardless of distance? How do we focus on what matters?
+4.  **Transformers:**
+    *   *Architecture:* Encoder-Decoder, Self-Attention, Multi-Head Attention.
+    *   *Visual:* The Transformer block diagram animated.
+    *   *Key Questions:* How can we process an entire sentence at once instead of word-by-word?
+5.  **Positional Encodings:**
+    *   *Concept:* Injecting order into parallel processing.
+    *   *Key Questions:* How do we tell a parallel model about the order of words?
+
+---
+
+## Phase 4: Beyond Transformers (Advanced Architectures)
+
+Pushing the boundaries of efficiency and scale.
+
+1.  **Efficient Attention:**
+    *   *Concept:* Linear complexity attention (FlashAttention).
+    *   *Key Questions:* Can we make attention faster than quadratic time?
+2.  **Mixture of Experts (MoE):**
+    *   *Concept:* Sparse activation for massive scaling.
+    *   *Visual:* Routing tokens to specific experts.
+    *   *Key Questions:* How can we make models huge but cheap to run?
+3.  **State Space Models (SSMs):**
+    *   *Concept:* Mamba/Jamba and the return of RNN-like efficiency.
+    *   *Key Questions:* Can we combine the efficiency of RNNs with the power of Transformers?

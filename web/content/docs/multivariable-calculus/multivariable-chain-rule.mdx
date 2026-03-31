@@ -1,0 +1,244 @@
+---
+title: Chain Rule for Multivariable Functions
+description: How small changes flow through layers.
+---
+
+# Chain Rule for Multivariable Functions
+
+Imagine a factory pipeline:
+raw input goes through one machine, then another, then another.
+If the final output changes, where did that change come from?
+
+That is exactly the chain rule question in deep learning.
+
+## 1. Why We Need It
+
+In many systems, one variable does not affect the output directly. It affects an intermediate variable, which then affects the output.
+
+Imagine you turn a **Dial ($t$)**.
+- The Dial turns a **Gear ($x$)**.
+- The Gear moves a **Machine ($z$)**.
+
+So $t \to x \to z$.
+
+If you want to know "How much does the Machine move when I turn the Dial?", you multiply the effects:
+$$
+\text{Total Effect} = (\text{Machine sensitivity to Gear}) \times (\text{Gear sensitivity to Dial})
+$$
+
+This is the Chain Rule.
+
+Now, what if the Dial turns **two** gears ($x$ and $y$), and **both** gears push the Machine?
+
+$$
+t \to x \to z
+$$
+$$
+t \to y \to z
+$$
+
+You simply add the effects from both paths.
+
+## 2. The Formula
+
+If $z$ depends on $x$ and $y$, and both depend on $t$:
+
+$$
+\frac{dz}{dt}
+=
+\underbrace{\frac{\partial z}{\partial x}\frac{dx}{dt}}_{\text{Path 1}}
++
+\underbrace{\frac{\partial z}{\partial y}\frac{dy}{dt}}_{\text{Path 2}}
+$$
+
+It says: **Total Change = Change via $x$ + Change via $y$**.
+
+## 3. Symbol Dictionary
+
+- $z$: The final output (e.g., Temperature, Cost, Machine Output)
+- $x, y$: The intermediate parts (e.g., Position, Neurons, Gears)
+- $t$: The input control (e.g., Time, a Dial, a Weight)
+
+## 4. Worked Examples (Two Real Problems)
+
+### Example 1: Temperature changing with position over time
+
+Imagine a room where temperature is not uniform. If you walk, the temperature you feel can change for two separate reasons:
+
+- you move in the $x$ direction, where temperature may rise or fall,
+- you move in the $y$ direction, where temperature may also rise or fall.
+
+So your total temperature change is the sum of these two effects:
+"change from $x$ motion" + "change from $y$ motion."
+
+Now we write that situation in notation. Suppose temperature in the room is
+$$
+T(x,y)=x^2+2xy
+$$
+where $(x,y)$ is your position.
+
+Now imagine you walk on a path:
+$$
+x(t)=t,\qquad y(t)=t^2
+$$
+
+We want $\frac{dT}{dt}$: how fast the temperature you feel changes as you move.
+
+The path picture is:
+$$
+t \to (x(t),y(t)) \to T(x,y),
+$$
+so information reaches $T$ through two channels: $t \to x \to T$ and $t \to y \to T$.
+
+First, compute partial derivatives:
+$$
+\frac{\partial T}{\partial x}=2x+2y,\qquad
+\frac{\partial T}{\partial y}=2x
+$$
+
+Then compute path derivatives:
+$$
+\frac{dx}{dt}=1,\qquad
+\frac{dy}{dt}=2t
+$$
+
+Apply chain rule:
+$$
+\frac{dT}{dt}
+=
+\frac{\partial T}{\partial x}\frac{dx}{dt}
++
+\frac{\partial T}{\partial y}\frac{dy}{dt}
+=
+(2x+2y)(1)+(2x)(2t)
+$$
+
+Substitute $x=t,\ y=t^2$:
+$$
+\frac{dT}{dt}
+=
+(2t+2t^2)+4t^2
+=
+2t+6t^2
+$$
+
+So along this path, the temperature change rate is
+$$
+\frac{dT}{dt}=2t+6t^2.
+$$
+
+### Example 2: Two chained neurons with a cost function
+
+Now let us use a real training setup: we do not optimize with respect to time, we optimize with respect to parameters by minimizing loss.
+
+**The Goal:** We want to decrease the Loss $\mathcal{L}$ (error). To do that, we need to know:
+> "If I nudge weight $w_2$ slightly, how much does the Loss $\mathcal{L}$ change?"
+
+In math, this question is exactly the partial derivative $\frac{\partial \mathcal{L}}{\partial w_2}$.
+
+**The Path of Influence:**
+
+1.  **Nudge $w_2$** $\to$ changes the weighted sum $z_2$.
+2.  **Change in $z_2$** $\to$ changes the activation $\hat{y}$ (via sigmoid).
+3.  **Change in $\hat{y}$** $\to$ changes the Loss $\mathcal{L}$.
+
+Visually:
+$$
+w_2 \xrightarrow{\text{step 1}} z_2 \xrightarrow{\text{step 2}} \hat{y} \xrightarrow{\text{step 3}} \mathcal{L}
+$$
+
+The Chain Rule says the **total sensitivity** is just the product of the **local sensitivities** at each step.
+
+$$
+\text{Total Effect} = (\text{Effect of } \hat{y} \text{ on } \mathcal{L}) \times (\text{Effect of } z_2 \text{ on } \hat{y}) \times (\text{Effect of } w_2 \text{ on } z_2)
+$$
+
+Or in notation:
+$$
+\frac{\partial \mathcal{L}}{\partial w_2} = \frac{\partial \mathcal{L}}{\partial \hat{y}} \cdot \frac{\partial \hat{y}}{\partial z_2} \cdot \frac{\partial z_2}{\partial w_2}
+$$
+
+---
+
+**Let's calculate it with real numbers.**
+
+Model equations:
+$$
+z_1 = w_1 x + b_1,\qquad a_1=\sigma(z_1)
+$$
+$$
+z_2 = w_2 a_1 + b_2,\qquad \hat{y}=a_2=\sigma(z_2)
+$$
+$$
+\mathcal{L}=\frac{1}{2}(\hat{y}-y)^2,\qquad
+\sigma(u)=\frac{1}{1+e^{-u}}.
+$$
+
+Let
+$$
+x=1,\ y=1,\ w_1=2,\ b_1=0,\ w_2=3,\ b_2=0.
+$$
+
+**Forward pass (Computing values):**
+$$
+z_1=2,\quad a_1=\sigma(2)\approx 0.8808
+$$
+$$
+z_2=3(0.8808)\approx 2.6424,\quad
+\hat{y}=\sigma(2.6424)\approx 0.9335.
+$$
+
+**Backward pass (Computing sensitivities):**
+
+1.  **Effect of $\hat{y}$ on $\mathcal{L}$:**
+    $$ \frac{\partial \mathcal{L}}{\partial \hat{y}} = (\hat{y} - y) = (0.9335 - 1) = -0.0665 $$
+    *(The error is negative, so we want $\hat{y}$ to go up)*
+
+2.  **Effect of $z_2$ on $\hat{y}$:**
+    $$ \frac{\partial \hat{y}}{\partial z_2} = \sigma'(z_2) = \hat{y}(1-\hat{y}) = 0.9335(1-0.9335) \approx 0.0621 $$
+    *(The sigmoid slope at the output)*
+
+3.  **Effect of $w_2$ on $z_2$:**
+    $$ \frac{\partial z_2}{\partial w_2} = a_1 = 0.8808 $$
+    *(The input strength from the previous layer)*
+
+**Total Gradient for $w_2$:**
+Multiply them all together:
+$$
+\frac{\partial \mathcal{L}}{\partial w_2} \approx (-0.0665) \cdot (0.0621) \cdot (0.8808) \approx -0.0036
+$$
+
+This tells us: increasing $w_2$ slightly will **decrease** the loss (because the gradient is negative).
+
+---
+
+#### Gradient for hidden-layer weight $w_1$
+
+Now the chain is longer. The influence path is:
+$$
+w_1 \to z_1 \to a_1 \to z_2 \to \hat{y} \to \mathcal{L}
+$$
+
+We just multiply the sensitivities along the whole path:
+$$
+\frac{\partial \mathcal{L}}{\partial w_1}
+=
+\underbrace{\frac{\partial \mathcal{L}}{\partial \hat{y}}
+\frac{\partial \hat{y}}{\partial z_2}
+\frac{\partial z_2}{\partial a_1}}_{\text{Backprop from future}}
+\cdot
+\underbrace{\frac{\partial a_1}{\partial z_1}
+\frac{\partial z_1}{\partial w_1}}_{\text{Local steps}}
+$$
+
+Notice the first part is just the gradient arriving at $a_1$. We reuse the work we did!
+
+$$
+\frac{\partial \mathcal{L}}{\partial w_1} \approx \dots \approx -0.00147
+$$
+
+This "reusing the chain" is exactly what Backpropagation is.
+
+> [!TIP]
+> **ML Relevance**
+> Backpropagation is repeated chain rule. Each layer passes gradient information backward so every parameter gets credit (or blame) for the final error.

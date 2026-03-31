@@ -1,0 +1,120 @@
+---
+title: Partial Derivatives
+description: Slicing the mountain to understand slope in 3D.
+---
+
+# Partial Derivatives
+
+Suppose you are standing on a mountain in heavy fog.
+You can only take tiny steps, and you need to answer one practical question:
+**"Which way should I move to climb fastest?"**
+
+In single-variable calculus, this was easy: there was only one direction to move, so one derivative gave the slope.
+Now your height is described by a surface:
+$$
+z = f(x, y)
+$$
+and you can move in many directions. So asking for "the derivative" is no longer enough.
+
+We need a more focused question:
+**How steep is the surface if we move in one chosen direction while freezing the other?**
+
+## 1. The Slicing Intuition
+
+To make this concrete, we start with the two coordinate directions:
+1.  **The X-direction:** Moving purely East/West.
+2.  **The Y-direction:** Moving purely North/South.
+
+Imagine taking a giant knife and slicing the mountain:
+*   Keep $y$ fixed, and slice in the $x$ direction -> you get a 2D curve.
+*   Keep $x$ fixed, and slice in the $y$ direction -> you get another 2D curve.
+
+Now we are back to familiar territory: each slice is a normal 2D curve, and we can measure its tangent slope.
+Those two slopes are the partial derivatives.
+
+## 2. Notation
+
+We use a special curly "d" symbol ($\partial$, pronounced "del") to distinguish partial derivatives from normal ones.
+
+*   **$\frac{\partial f}{\partial x}$**: How much $z$ changes if we wiggle $x$ (holding $y$ constant).
+*   **$\frac{\partial f}{\partial y}$**: How much $z$ changes if we wiggle $y$ (holding $x$ constant).
+
+**Symbol Dictionary**
+*   $x, y$: horizontal coordinates (where you are on the map)
+*   $z = f(x, y)$: altitude at that location
+*   $\frac{\partial f}{\partial x}, \frac{\partial f}{\partial y}$: slopes along the $x$ and $y$ directions
+
+## 3. The Mechanics: Treat Constants as Constants
+
+Calculating partial derivatives is surprisingly easy. You just pretend the other variable is a number (a constant).
+
+**Example:** Let $f(x, y) = x^2 + y^3$.
+
+**Find $\frac{\partial f}{\partial x}$:**
+*   We care about $x$.
+*   We treat $y$ as a constant (like the number 5).
+*   Derivative of $x^2$ is $2x$.
+*   Derivative of $y^3$ (which is a constant) is $0$.
+$$
+\frac{\partial f}{\partial x} = 2x
+$$
+
+**Find $\frac{\partial f}{\partial y}$:**
+*   We care about $y$.
+*   We treat $x$ as a constant.
+*   Derivative of $x^2$ (constant) is $0$.
+*   Derivative of $y^3$ is $3y^2$.
+$$
+\frac{\partial f}{\partial y} = 3y^2
+$$
+
+## 4. A Harder Example (Product Rule)
+
+What if they are mixed? Let $f(x, y) = x \cdot y$.
+
+**Find $\frac{\partial f}{\partial x}$:**
+*   $y$ is just a coefficient (like $5x$).
+*   Derivative of $x$ is $1$.
+$$
+\frac{\partial f}{\partial x} = 1 \cdot y = y
+$$
+
+**Find $\frac{\partial f}{\partial y}$:**
+*   $x$ is just a coefficient.
+*   Derivative of $y$ is $1$.
+$$
+\frac{\partial f}{\partial y} = x \cdot 1 = x
+$$
+
+> [!TIP]
+> **Intuition Check**
+> If $z = x \cdot y$, and $y$ is huge (say 100), then a tiny change in $x$ makes a huge change in $z$. That's why the slope w.r.t $x$ depends on $y$!
+
+> [!NOTE]
+> **Why this matters in ML**
+> In machine learning, the surface is often a **loss landscape**.
+> The coordinates are model parameters, and height is prediction error.
+> Partial derivatives tell us how error changes when we nudge one parameter at a time, which is exactly what gradient-based training uses.
+
+import MarimoEmbed from '@/components/interactive/MarimoEmbed';
+
+## 5. Interactive Playground
+
+In this notebook, you can:
+1.  See a 3D surface.
+2.  "Slice" it with planes to reveal the x-slope and y-slope.
+3.  Watch how the partial derivatives change as you move around the surface.
+
+<MarimoEmbed 
+  notebookPath="/notebooks/multivariable_calculus/partial_derivatives/index.html" 
+  title="Partial Derivatives Visualization (Marimo)"
+  height="800px"
+/>
+
+### How to Run Locally
+If you prefer to run this locally:
+1.  Open with uv: `uv run marimo edit web/public/notebooks/multivariable_calculus/partial_derivatives.py`
+2.  Download the notebook below.
+3.  Export static embed HTML: `uv run --with marimo --with plotly --with numpy marimo export html web/public/notebooks/multivariable_calculus/partial_derivatives.py --no-include-code -o web/public/notebooks/multivariable_calculus/partial_derivatives/index.html -f`
+
+[Download Partial Derivatives Notebook](/notebooks/multivariable_calculus/partial_derivatives.py)

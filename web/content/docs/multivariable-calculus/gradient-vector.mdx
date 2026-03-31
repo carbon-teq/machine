@@ -1,0 +1,85 @@
+---
+title: The Gradient Vector
+description: Your uphill compass on a loss landscape.
+---
+
+import MarimoEmbed from '@/components/interactive/MarimoEmbed';
+
+# The Gradient Vector
+
+Imagine you are standing on a mountain side in dense fog. You can't see the peak, but you can feel the slope under your feet. You want to reach the top.
+**Which direction should you step?**
+
+The **Gradient Vector** ($\nabla f$) is your local compass. It doesn't point to the peak directly, but it points in the direction of **steepest ascent** right where you are standing.
+
+## 1. The Gradient (Scalar Output)
+
+For a function $f(x, y)$ that outputs a single number (height), the gradient collects the partial derivatives into a vector:
+
+$$
+\nabla f(x, y) = \begin{bmatrix} \frac{\partial f}{\partial x} \\ \frac{\partial f}{\partial y} \end{bmatrix}
+$$
+
+### Intuition
+*   **Direction:** The arrow points uphill.
+*   **Length:** The arrow is long where the slope is steep, and short where the ground is flat.
+*   **Zero:** At the very peak (or valley), the gradient is $\mathbf{0}$.
+
+> [!TIP]
+> **In Machine Learning**
+> We usually want to *minimize* loss, not maximize it. So we move in the direction of $-\nabla f$ (negative gradient). This is the core of **Gradient Descent**.
+
+---
+
+## 2. The Jacobian (Vector Output)
+
+What if we have a function that outputs a *vector*?
+$$
+\mathbf{F}(x, y) = \begin{bmatrix} u(x, y) \\ v(x, y) \end{bmatrix}
+$$
+
+We can't use a simple "uphill" arrow because there isn't just one "height." We have two outputs changing at once.
+Instead, we use the **Jacobian Matrix**.
+
+### The "Control Panel" Analogy
+Think of a control panel with 2 knobs ($x, y$) that control 2 meters ($u, v$).
+The Jacobian tells you the **sensitivity** of the meters to the knobs.
+
+$$
+J_{\mathbf{F}} =
+\begin{bmatrix}
+\text{How } u \text{ changes with } x & \text{How } u \text{ changes with } y \\
+\text{How } v \text{ changes with } x & \text{How } v \text{ changes with } y
+\end{bmatrix}
+=
+\begin{bmatrix}
+\frac{\partial u}{\partial x} & \frac{\partial u}{\partial y} \\
+\frac{\partial v}{\partial x} & \frac{\partial v}{\partial y}
+\end{bmatrix}
+$$
+
+*   **Column 1** ($\frac{\partial \mathbf{F}}{\partial x}$): The vector change if you only turn knob $x$.
+*   **Column 2** ($\frac{\partial \mathbf{F}}{\partial y}$): The vector change if you only turn knob $y$.
+
+---
+
+## Interactive Explorer
+
+Use the notebook below to visualize:
+1.  **Gradient:** See the 3D surface. Notice how the red arrow (gradient) lives on the "floor" (input space) but tells you about the mountain (output space).
+2.  **Jacobian:** See how the vector field twists. The colored arrows show the "sensitivity" columns described above.
+
+<MarimoEmbed
+  notebookPath="/notebooks/multivariable_calculus/gradient_vector/index.html"
+  title="Gradient & Jacobian Explorer"
+  height="900px"
+/>
+
+### How to Run Locally
+If you prefer to run this notebook locally:
+1. Open the notebook with uv: `uv run marimo edit web/public/notebooks/multivariable_calculus/gradient_vector.py`
+
+To generate a clean static embed (code hidden), export with:
+`uv run --with marimo --with plotly --with numpy marimo export html web/public/notebooks/multivariable_calculus/gradient_vector.py --no-include-code -o web/public/notebooks/multivariable_calculus/gradient_vector/index.html -f`
+
+[Download Gradient Vector Notebook](/notebooks/multivariable_calculus/gradient_vector.py)

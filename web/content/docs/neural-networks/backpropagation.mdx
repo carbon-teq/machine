@@ -1,0 +1,456 @@
+---
+title: Backpropagation
+description: The algorithm that allows neural networks to learn.
+---
+
+# Backpropagation
+
+We now know how a network turns inputs into a prediction.
+
+But training needs one more idea.
+
+If the network makes a mistake, we do not just want to know **that** it was wrong. We want to know **which weights and biases should change** to make the mistake smaller next time.
+
+Gradient descent tells us the strategy: move parameters in the direction that decreases the cost.
+
+Backpropagation is the procedure that tells us what that direction is.
+
+## Start With The Simplest Possible Network
+
+To see the logic clearly, it helps to start smaller than a real neural network.
+
+Imagine a toy network where each layer has just one neuron.
+
+There are three weights and three biases in total, and our goal is to understand how changing any one of them affects the cost.
+
+For now, focus only on the connection into the final neuron.
+
+We will label quantities by layer using superscripts:
+
+- $a^{(L)}$ means the activation in the last layer
+- $a^{(L-1)}$ means the activation in the previous layer
+
+These are **not exponents**. They are just labels telling us which layer we are talking about, following the progression used in Grant Sanderson's lesson on [Backpropagation calculus](https://www.3blue1brown.com/lessons/backpropagation-calculus).
+
+For one training example with desired output $y$, define the cost
+
+$$
+C_0 = \left(a^{(L)} - y\right)^2
+$$
+
+That final activation comes from a weighted sum followed by an activation function:
+
+$$
+z^{(L)} = w^{(L)} a^{(L-1)} + b^{(L)}
+$$
+
+$$
+a^{(L)} = \sigma\left(z^{(L)}\right)
+$$
+
+That little chain matters.
+
+The weight and bias determine $z^{(L)}$, which determines $a^{(L)}$, which determines the cost.
+
+<img src="/images/neural-networks/backprop-dependency-tree.png" alt="Dependency tree showing how the final weight and bias influence the weighted sum, the activation, and finally the cost" width="100%" />
+
+This image earns its place here because it shows the exact dependency structure we are about to differentiate through.
+
+If you change $w^{(L)}$, you do not hit the cost directly. You nudge $z^{(L)}$, which nudges $a^{(L)}$, which nudges $C_0$.
+
+## The First Derivative We Care About
+
+Now ask the most concrete question possible: how sensitive is $C_0$ to changes in $w^{(L)}$?
+
+In symbols, that question is $\partial C_0 / \partial w^{(L)}$.
+
+The most useful way to read this is not as a piece of notation to memorize, but as a "tiny nudge" question.
+
+- $\partial w^{(L)}$ means a tiny change to the weight
+- $\partial C_0$ means the resulting tiny change in the cost
+
+We want the ratio between those two changes.
+
+And the dependency tree tells us exactly how to break that question into smaller ones.
+
+## Walking Backward Through The Dependencies
+
+To get from $w^{(L)}$ to $C_0$, we pass through two intermediate quantities:
+
+$$
+w^{(L)} \rightarrow z^{(L)} \rightarrow a^{(L)} \rightarrow C_0
+$$
+
+So instead of asking for one giant derivative all at once, we ask for three local ones:
+
+$$
+\frac{\partial z^{(L)}}{\partial w^{(L)}},
+\qquad
+\frac{\partial a^{(L)}}{\partial z^{(L)}},
+\qquad
+\frac{\partial C_0}{\partial a^{(L)}}
+$$
+
+This is the chain rule in the form that machine learning uses it.
+
+$$
+\frac{\partial C_0}{\partial w^{(L)}}
+=
+\frac{\partial z^{(L)}}{\partial w^{(L)}}
+\frac{\partial a^{(L)}}{\partial z^{(L)}}
+\frac{\partial C_0}{\partial a^{(L)}}
+$$
+
+It looks formal, but the idea is simple:
+
+- how much does the weight affect the weighted sum?
+- how much does the weighted sum affect the activation?
+- how much does the activation affect the cost?
+
+Multiply those local sensitivities together, and you get the total sensitivity.
+
+## The Constituent Derivatives
+
+Now each small derivative comes from one simple formula we already know.
+
+From
+
+$$
+z^{(L)} = w^{(L)} a^{(L-1)} + b^{(L)}
+$$
+
+we get
+
+$$
+\frac{\partial z^{(L)}}{\partial w^{(L)}} = a^{(L-1)}
+$$
+
+From
+
+$$
+a^{(L)} = \sigma\left(z^{(L)}\right)
+$$
+
+we get
+
+$$
+\frac{\partial a^{(L)}}{\partial z^{(L)}} = \sigma'\left(z^{(L)}\right)
+$$
+
+And from
+
+$$
+C_0 = \left(a^{(L)} - y\right)^2
+$$
+
+we get
+
+$$
+\frac{\partial C_0}{\partial a^{(L)}} = 2\left(a^{(L)} - y\right)
+$$
+
+Each piece is straightforward on its own.
+
+The point of backpropagation is not that each derivative is hard. The point is that networks contain a huge number of them, and the chain rule lets us organize them cleanly.
+
+## Putting The Pieces Together
+
+Substituting those three pieces into the chain rule gives
+
+$$
+\frac{\partial C_0}{\partial w^{(L)}}
+=
+a^{(L-1)}
+\sigma'\left(z^{(L)}\right)
+2\left(a^{(L)} - y\right)
+$$
+
+Now the derivative carries meaning.
+
+- $a^{(L-1)}$ says the previous neuron has to be active for this weight to matter much
+- $\sigma'\left(z^{(L)}\right)$ says the activation function has to be locally responsive
+- $2(a^{(L)} - y)$ says the pressure to change grows when the prediction is far from the target
+
+This is exactly the kind of local information gradient descent needs.
+
+## The Bias Is Almost The Same Story
+
+Now do the same thing for the bias in the last layer.
+
+The chain of dependencies is nearly identical:
+
+$$
+\frac{\partial C_0}{\partial b^{(L)}}
+=
+\frac{\partial z^{(L)}}{\partial b^{(L)}}
+\frac{\partial a^{(L)}}{\partial z^{(L)}}
+\frac{\partial C_0}{\partial a^{(L)}}
+$$
+
+The only new ingredient is
+
+$$
+\frac{\partial z^{(L)}}{\partial b^{(L)}} = 1
+$$
+
+because increasing the bias by a tiny amount increases the weighted sum by that same tiny amount.
+
+So
+
+$$
+\frac{\partial C_0}{\partial b^{(L)}}
+=
+\sigma'\left(z^{(L)}\right)
+2\left(a^{(L)} - y\right)
+$$
+
+## Moving One Layer Earlier
+
+So far we have only looked at parameters sitting right next to the output.
+
+But the network also contains earlier weights and biases. Their influence on the cost is more indirect.
+
+To reach them, we have to move one step farther back through the dependency tree.
+
+The key intermediate quantity is
+
+$$
+\frac{\partial C_0}{\partial a^{(L-1)}}
+$$
+
+This asks:
+
+**How sensitive is the cost to the activation in the previous layer?**
+
+Again, the dependency structure tells us how to break it up:
+
+$$
+\frac{\partial C_0}{\partial a^{(L-1)}}
+=
+\frac{\partial z^{(L)}}{\partial a^{(L-1)}}
+\frac{\partial a^{(L)}}{\partial z^{(L)}}
+\frac{\partial C_0}{\partial a^{(L)}}
+$$
+
+and from the weighted-sum formula,
+
+$$
+\frac{\partial z^{(L)}}{\partial a^{(L-1)}} = w^{(L)}
+$$
+
+So
+
+$$
+\frac{\partial C_0}{\partial a^{(L-1)}}
+=
+w^{(L)}
+\sigma'\left(z^{(L)}\right)
+2\left(a^{(L)} - y\right)
+$$
+
+This is the moment where the idea of "back-propagating" the error becomes real.
+
+We are taking information about the cost at the output and pushing it backward to tell us how much the previous activation mattered.
+
+## Now Earlier Weights Can Learn Too
+
+Once we know how the cost depends on $a^{(L-1)}$, we can keep chaining backward.
+
+For a weight in the previous layer, the dependency path is longer:
+
+$$
+w^{(L-1)}
+\rightarrow
+z^{(L-1)}
+\rightarrow
+a^{(L-1)}
+\rightarrow
+z^{(L)}
+\rightarrow
+a^{(L)}
+\rightarrow
+C_0
+$$
+
+So the derivative becomes a longer product of local terms:
+
+$$
+\frac{\partial C_0}{\partial w^{(L-1)}}
+=
+\frac{\partial z^{(L-1)}}{\partial w^{(L-1)}}
+\frac{\partial a^{(L-1)}}{\partial z^{(L-1)}}
+\frac{\partial z^{(L)}}{\partial a^{(L-1)}}
+\frac{\partial a^{(L)}}{\partial z^{(L)}}
+\frac{\partial C_0}{\partial a^{(L)}}
+$$
+
+That expression looks longer, but nothing fundamentally new happened.
+
+We are still doing the same thing:
+
+- trace the dependency path
+- compute each local derivative
+- multiply them together
+
+That repeated backward bookkeeping is backpropagation.
+
+## From One Example To The Whole Dataset
+
+So far we have been differentiating the cost for a single training example, $C_0$.
+
+But training usually uses the average cost across many examples:
+
+$$
+C = \frac{1}{n} \sum_{k=0}^{n-1} C_k
+$$
+
+So the derivative of the full cost with respect to a weight is just the average of the per-example derivatives:
+
+$$
+\frac{\partial C}{\partial w^{(L)}}
+=
+\frac{1}{n}\sum_{k=0}^{n-1}\frac{\partial C_k}{\partial w^{(L)}}
+$$
+
+That is one entry in the gradient vector.
+
+And if we do this for every weight and every bias, we get the full gradient the optimizer needs.
+
+## What Changes In A Real Layer
+
+A real neural network layer has many neurons, not just one.
+
+That means two things change:
+
+- activations need subscripts as well as layer labels
+- one activation in a previous layer can influence many neurons in the next layer
+
+So instead of a single activation $a^{(L)}$, we write something like $a_j^{(L)}$.
+
+Instead of one weight, we write weights like $w_{jk}^{(L)}$, meaning the connection from neuron $k$ in layer $(L-1)$ to neuron $j$ in layer $L$.
+
+The main new idea is that one earlier activation can affect the cost through multiple outgoing paths, so some derivatives become sums of many chain-rule terms rather than just one.
+
+That is why the notation grows. The underlying idea does not.
+
+## The Compact View
+
+Once you have followed the one-neuron story carefully, the more compact summary earns the right to appear.
+
+<img src="/images/neural-networks/backprop-summary.png" alt="Summary diagram of backpropagation derivatives and how they connect across layers" width="100%" />
+
+This image belongs here because it is not introducing a new idea. It is compressing the repeated pattern we have already built up step by step.
+
+The takeaway is not that you should memorize every symbol in one glance.
+
+The takeaway is that every entry of the gradient comes from the same move:
+
+- trace a dependency path from parameter to cost
+- break that path into local derivatives
+- multiply along the path
+
+## Backpropagation As A Procedure
+
+At this point, it helps to see backpropagation as code.
+
+The key thing to notice is that we do **not** compute one giant derivative in a single shot. We move layer by layer.
+
+First we compute all the forward quantities we will need later. Then we start at the output layer and walk backward, reusing the local information from each layer before moving to the previous one.
+
+```text
+# Forward pass
+activation[0] = input_vector
+for l = 1 to L:
+    pre_activation[l] = weight_matrix[l] @ activation[l-1] + bias_vector[l]
+    activation[l] = activation_function[l](pre_activation[l])
+
+# Loss for one example
+example_cost = loss(activation[L], target_output)
+
+# Backward pass
+activation_gradient = d(loss)/d(activation[L])
+
+for l = L down to 1:
+    pre_activation_gradient =
+        activation_gradient * activation_derivative[l](pre_activation[l])
+    weight_gradient[l] =
+        pre_activation_gradient @ (activation[l-1])^T
+    bias_gradient[l] = pre_activation_gradient
+
+    if l > 1:
+        activation_gradient =
+            (weight_matrix[l])^T @ pre_activation_gradient
+```
+
+Read this loop slowly:
+
+- start with the final output, because that is where the loss is defined
+- compute the local error signal for the current layer
+- use that local signal to get gradients for that layer's weights and biases
+- push the signal backward to the previous layer
+- repeat until you reach the beginning
+
+This is why the word **backpropagation** is so literal. The learning signal is propagated backward one layer at a time.
+
+### Symbol Dictionary
+
+| Symbol | Name | Meaning |
+| :--- | :--- | :--- |
+| $C_0$ | **Cost for one example** | How wrong the network was on one training example. |
+| $C$ | **Average cost** | The average cost across the dataset or batch. |
+| $a^{(L)}$ | **Activation in layer $L$** | The output of the neuron after the nonlinearity. |
+| $z^{(L)}$ | **Weighted sum in layer $L$** | The value before the activation function. |
+| $w^{(L)}$ | **Weight in layer $L$** | A parameter controlling one connection. |
+| $b^{(L)}$ | **Bias in layer $L$** | A parameter shifting the weighted sum. |
+| $\sigma'$ | **Activation derivative** | The local slope of the activation function. |
+
+## Where The Difficulty Really Comes From
+
+The hardest part of backpropagation is not any one derivative.
+
+The difficulty is organizational.
+
+In a large network, there are many layers, many neurons, and many dependency paths. Backpropagation is the system that keeps that bookkeeping manageable.
+
+It also explains why some architectures are easier to train than others:
+
+- if derivatives stay healthy, learning signals travel backward well
+- if derivatives become tiny, gradients can vanish
+- if they grow too much, gradients can explode
+- if an activation function goes flat, it can block useful learning signal
+
+## Interactive Lab
+
+The reader should be able to see error signals moving backward just as clearly as activations move forward.
+
+### Planned Interactive Components
+
+**1. Manim Animation: Error Flows Backward**
+*   **Visual:** Reuse the forward-pass network diagram.
+*   **Action:** After a wrong prediction appears, a colored error signal travels from the output node back through the network.
+*   **Insight:** The reader should see that each layer receives a learning signal, not just the output layer.
+
+**2. Marimo Notebook: Backprop Step Explorer**
+*   **Setup:** A tiny hardcoded network with one training example.
+*   **Display:** Show the forward values first, then reveal $d\mathbf{z}^{[2]}$, $d\mathbf{W}^{[2]}$, $d\mathbf{z}^{[1]}$, and $d\mathbf{W}^{[1]}$ step by step.
+*   **Insight:** Changing the target or one activation should visibly change the gradients everywhere upstream.
+
+## Why This Matters In ML
+
+> [!NOTE]
+> Forward propagation tells the network what it currently believes. Backpropagation tells it how each parameter contributed to that belief being wrong. Without it, deep networks would have no efficient way to learn from mistakes.
+
+Every modern deep learning system relies on this backward flow of gradients.
+
+- image classifiers
+- recommendation systems
+- speech models
+- large language models
+
+They may use different architectures, but they all depend on the same core idea: compute a loss, backpropagate gradients, and update parameters.
+
+## Key Questions
+
+- **What is backpropagation?** It is the process of sending the error signal backward through the network to compute gradients for every parameter.
+- **Why do we need the chain rule?** Because a parameter affects the cost through a chain of intermediate quantities.
+- **What does a gradient mean?** It tells us how a tiny nudge to a parameter would change the cost.

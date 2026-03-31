@@ -1,0 +1,353 @@
+---
+title: Forward Propagation
+description: How data flows through a neural network to make a prediction.
+---
+
+# Forward Propagation
+
+We now have all the pieces of a neural network:
+
+- inputs
+- weights and biases
+- activation functions
+
+The next question is simple and practical:
+
+**How does one actual prediction happen?**
+
+Imagine a tiny spam filter reading an email. The raw input might contain features like:
+
+- how many suspicious words appear
+- how many links are in the message
+
+Those raw numbers are not the final answer. The network has to combine them, reshape them, and pass them through several small decision steps before it can say, "this looks like spam."
+
+That whole trip from input to prediction is **forward propagation**.
+
+It is called "forward" because the signal moves one way through the network:
+
+$$
+\text{input} \rightarrow \text{hidden layers} \rightarrow \text{output}
+$$
+
+Nothing is being learned yet. We are just asking the network, with its current weights, "What do you predict for this example?"
+
+## One Prediction, Layer By Layer
+
+At each layer, the network does the same two-part move:
+
+1. build a weighted combination of the incoming signals
+2. pass that result through an activation function
+
+So each layer first gathers evidence, then decides how much of that evidence should continue.
+
+Before we label multiple layers, it helps to write down the move once for a single layer.
+
+Start with some incoming signal. For the very first layer, that signal is just the input vector $\mathbf{x}$.
+
+The layer forms a raw weighted sum:
+
+$$
+\mathbf{z} = \mathbf{W}\mathbf{x} + \mathbf{b}
+$$
+
+Then it applies an activation function:
+
+$$
+\mathbf{a} = g(\mathbf{z})
+$$
+
+That is the basic forward step.
+
+The notation is just a compact way of saying:
+
+- start with the input vector $\mathbf{x}$
+- compute a raw score
+- activate that score
+- pass the result forward
+
+Now imagine doing that same move again.
+
+The first layer produces an activated output. That activated output becomes the input to the next layer.
+
+So if we write the two layers out in words, the story is:
+
+- input goes into the hidden layer
+- the hidden layer produces an activated signal
+- that activated signal goes into the output layer
+- the output layer produces the final prediction
+
+At this point, we need a clean way to keep track of which layer we mean. That is where the superscripts come from. They are not powers. They are just labels:
+
+- $[1]$ means "first layer"
+- $[2]$ means "second layer"
+
+With those labels, the same two-step pattern becomes:
+
+$$
+\mathbf{z}^{[1]} = \mathbf{W}^{[1]} \mathbf{x} + \mathbf{b}^{[1]}
+$$
+
+$$
+\mathbf{a}^{[1]} = g^{[1]}\left(\mathbf{z}^{[1]}\right)
+$$
+
+$$
+\mathbf{z}^{[2]} = \mathbf{W}^{[2]} \mathbf{a}^{[1]} + \mathbf{b}^{[2]}
+$$
+
+$$
+\hat{y} = \mathbf{a}^{[2]} = g^{[2]}\left(\mathbf{z}^{[2]}\right)
+$$
+
+Now the compact notation should feel less like a jump and more like shorthand for a repeated process.
+
+## Why The Middle Quantity Matters
+
+It helps to keep two different objects separate:
+
+- $\mathbf{z}$ is the **pre-activation**, the raw weighted sum
+- $\mathbf{a}$ is the **activation**, the transformed signal that gets passed on
+
+This distinction matters because the network does not usually send raw linear scores directly forward. It lets the activation function reshape them first.
+
+So when you read
+
+$$
+\mathbf{a} = g(\mathbf{z})
+$$
+
+you should hear:
+
+"Take the raw evidence, then decide what form of that evidence deserves to survive."
+
+## A Tiny Forward Pass By Hand
+
+Let's walk through one full prediction for a very small network.
+
+Suppose the input is
+
+$$
+\mathbf{x} =
+\begin{bmatrix}
+1 \\
+2
+\end{bmatrix}
+$$
+
+The hidden layer uses
+
+$$
+\mathbf{W}^{[1]} =
+\begin{bmatrix}
+0.1 & 0.2 \\
+0.3 & 0.4
+\end{bmatrix},
+\qquad
+\mathbf{b}^{[1]} =
+\begin{bmatrix}
+0 \\
+0
+\end{bmatrix}
+$$
+
+and its activation is ReLU:
+
+$$
+\text{ReLU}(z) = \max(0, z)
+$$
+
+First compute the hidden layer's raw score:
+
+$$
+\mathbf{z}^{[1]}
+=
+\begin{bmatrix}
+0.1 & 0.2 \\
+0.3 & 0.4
+\end{bmatrix}
+\begin{bmatrix}
+1 \\
+2
+\end{bmatrix}
++
+\begin{bmatrix}
+0 \\
+0
+\end{bmatrix}
+$$
+
+$$
+\mathbf{z}^{[1]}
+=
+\begin{bmatrix}
+(0.1)(1) + (0.2)(2) \\
+(0.3)(1) + (0.4)(2)
+\end{bmatrix}
+=
+\begin{bmatrix}
+0.5 \\
+1.1
+\end{bmatrix}
+$$
+
+Now apply ReLU:
+
+$$
+\mathbf{a}^{[1]}
+=
+\text{ReLU}
+\left(
+\begin{bmatrix}
+0.5 \\
+1.1
+\end{bmatrix}
+\right)
+=
+\begin{bmatrix}
+0.5 \\
+1.1
+\end{bmatrix}
+$$
+
+Both values are already positive, so ReLU leaves them unchanged.
+
+Now send that hidden signal into the output layer. Use
+
+$$
+\mathbf{W}^{[2]} =
+\begin{bmatrix}
+0.5 & 0.6
+\end{bmatrix},
+\qquad
+\mathbf{b}^{[2]} =
+\begin{bmatrix}
+0
+\end{bmatrix}
+$$
+
+and a sigmoid output activation:
+
+$$
+\sigma(z) = \frac{1}{1 + e^{-z}}
+$$
+
+Compute the output layer's raw score:
+
+$$
+\mathbf{z}^{[2]}
+=
+\begin{bmatrix}
+0.5 & 0.6
+\end{bmatrix}
+\begin{bmatrix}
+0.5 \\
+1.1
+\end{bmatrix}
++
+\begin{bmatrix}
+0
+\end{bmatrix}
+$$
+
+$$
+\mathbf{z}^{[2]} = (0.5)(0.5) + (0.6)(1.1) = 0.25 + 0.66 = 0.91
+$$
+
+Finally, apply sigmoid:
+
+$$
+\hat{y} = \sigma(0.91) = \frac{1}{1 + e^{-0.91}} \approx 0.71
+$$
+
+So this network outputs **0.71**.
+
+If we are doing binary classification, we would interpret that as roughly a 71% confidence for the positive class.
+
+## What The Network Is Really Doing
+
+The arithmetic is important, but there is also a geometric picture underneath it.
+
+Each layer performs a transformation on the data:
+
+- the weight matrix mixes directions and changes scale
+- the bias shifts the result
+- the activation bends or clips the transformed space
+
+So forward propagation is not just "plug numbers into formulas." It is a sequence of transformations that gradually turns raw input into a representation that is easier for the final layer to separate.
+
+This is why hidden layers are useful. Early layers build intermediate features. Later layers use those features to make the final decision.
+
+## Writing The Whole Process Compactly
+
+Now we can earn the fully general version.
+
+If every layer keeps repeating the same pattern, then instead of writing "hidden layer," "next layer," and "output layer" every time, we use a generic label $l$ to mean "whichever layer we are currently talking about."
+
+So $l$ is not a new kind of object. It is just a placeholder for a layer number.
+
+For layer $l$, the forward step is
+
+$$
+\mathbf{z}^{[l]} = \mathbf{W}^{[l]} \mathbf{a}^{[l-1]} + \mathbf{b}^{[l]}
+$$
+
+$$
+\mathbf{a}^{[l]} = g^{[l]}\left(\mathbf{z}^{[l]}\right)
+$$
+
+with
+
+$$
+\mathbf{a}^{[0]} = \mathbf{x}
+$$
+
+That last line just says: before the first hidden layer, the signal entering the network is simply the input itself.
+
+### Symbol Dictionary
+
+| Symbol | Name | Meaning |
+| :--- | :--- | :--- |
+| $\mathbf{x}$ | **Input vector** | The features for one example. |
+| $\mathbf{W}^{[l]}$ | **Weight matrix** | The learned linear rule for layer $l$. |
+| $\mathbf{b}^{[l]}$ | **Bias vector** | The shift added at layer $l$. |
+| $\mathbf{z}^{[l]}$ | **Pre-activation** | The raw weighted sum before the non-linearity. |
+| $g^{[l]}$ | **Activation function** | The rule that reshapes the raw score. |
+| $\mathbf{a}^{[l]}$ | **Activation** | The output signal passed to the next layer. |
+| $\hat{y}$ | **Prediction** | The network's final output. |
+
+## Where This Shows Up In Practice
+
+Every time you use a trained model, you are running forward propagation.
+
+- classify an image
+- predict a house price
+- score whether an email is spam
+- generate the next token in a language model
+
+During training, forward propagation is also the first half of the story. The network makes a prediction first. Only after that can we measure the error and run backpropagation to decide how the weights should change.
+
+> [!NOTE]
+> Forward propagation is the execution path of the model. It turns current parameters into an actual prediction. Training begins by running this path, then asking how far the prediction was from the target.
+
+## Interactive Lab
+
+The reader should be able to see both the arithmetic and the geometry of a forward pass.
+
+### Planned Interactive Components
+
+**1. Manim Animation: One Prediction Moving Through The Network**
+*   **Visual:** A small network with highlighted nodes and edges.
+*   **Action:** The input vector enters from the left, each layer computes a weighted sum, then the activation lights up the outgoing signal.
+*   **Insight:** The reader should feel that each layer transforms the representation before handing it onward.
+
+**2. Marimo Notebook: Forward Pass Explorer**
+*   **Input:** Let the reader set an input vector and tweak a few weights.
+*   **Display:** Show $\mathbf{z}^{[1]}$, $\mathbf{a}^{[1]}$, $\mathbf{z}^{[2]}$, and $\hat{y}$ updating live.
+*   **Insight:** Changing one weight should visibly ripple through the entire computation.
+
+## Key Questions
+
+- **What is forward propagation?** It is the process of sending an input through the network to produce a prediction.
+- **What is the difference between $\mathbf{z}$ and $\mathbf{a}$?** $\mathbf{z}$ is the raw weighted sum, while $\mathbf{a}$ is the activated signal passed forward.
+- **Why do we use matrices?** They let us compute all neurons in a layer at once.

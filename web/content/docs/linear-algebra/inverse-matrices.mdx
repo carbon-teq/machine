@@ -1,0 +1,83 @@
+---
+title: Inverse Matrices
+description: The "Undo" button of Linear Algebra.
+---
+
+import InverseMatrixVis from '@/components/interactive/linear-algebra/InverseMatrixVis';
+
+# Inverse Matrices: The Undo Button
+
+We know that a matrix $\mathbf{A}$ transforms a vector $\mathbf{x}$ into a new vector $\mathbf{b}$.
+
+$$
+\mathbf{A}\mathbf{x} = \mathbf{b}
+$$
+
+But what if we want to go back?
+What if we know the output $\mathbf{b}$, and we want to figure out what the original input $\mathbf{x}$ was?
+
+We need a way to reverse the transformation. We need the **Inverse Matrix**, written as $\mathbf{A}^{-1}$.
+
+## Geometric Intuition
+
+Imagine $\mathbf{A}$ rotates the world 90 degrees to the right.
+Then $\mathbf{A}^{-1}$ must rotate the world 90 degrees to the left.
+
+If you apply $\mathbf{A}$ and then immediately apply $\mathbf{A}^{-1}$, it's like nothing ever happened. You end up exactly where you started.
+
+$$
+\mathbf{A}^{-1} \mathbf{A} = \mathbf{I}
+$$
+
+(Where $\mathbf{I}$ is the Identity Matrix—the "do nothing" matrix).
+
+## The Condition: No Black Holes
+
+Can we *always* find an inverse?
+**No.**
+
+Remember the **Determinant**?
+*   If $\det(\mathbf{A}) \neq 0$, the transformation preserves the dimension of space. We can always find a way back. The matrix is **Invertible**.
+*   If $\det(\mathbf{A}) = 0$, the transformation squishes space flat (e.g., 2D $\to$ 1D line).
+
+<Callout title="The Point of No Return" type="warn">
+If $\det(\mathbf{A}) = 0$, you cannot go back.
+Think about it: If you squash a square into a line, multiple points from the square now land on the *same* spot on the line.
+If I give you a point on that line and ask "Where did this come from?", you can't tell me. It could have come from anywhere along the squashed dimension.
+Information has been lost forever. The matrix is **Singular** (non-invertible).
+</Callout>
+
+## Mechanics: Solving Systems
+
+Why do we care about inverses? Because they let us solve equations.
+In basic algebra, to solve $3x = 12$, you divide by 3 (which is multiplying by $3^{-1}$).
+
+In Linear Algebra, to solve $\mathbf{A}\mathbf{x} = \mathbf{b}$:
+
+1.  Start with $\mathbf{A}\mathbf{x} = \mathbf{b}$
+2.  Multiply both sides by $\mathbf{A}^{-1}$ (on the left):
+    $$ \mathbf{A}^{-1} \mathbf{A} \mathbf{x} = \mathbf{A}^{-1} \mathbf{b} $$
+3.  Since $\mathbf{A}^{-1} \mathbf{A} = \mathbf{I}$, they cancel out:
+    $$ \mathbf{I} \mathbf{x} = \mathbf{A}^{-1} \mathbf{b} $$
+4.  Result:
+    $$ \mathbf{x} = \mathbf{A}^{-1} \mathbf{b} $$
+
+We have found the unknown input $\mathbf{x}$!
+
+## AI/ML Relevance
+
+<Callout title="Generative Models (Normalizing Flows)" type="tip">
+In Generative AI (like creating realistic faces), we often want to map simple random noise $\mathbf{z}$ to a complex image $\mathbf{x}$.
+$$ \mathbf{x} = f(\mathbf{z}) $$
+
+But to train these models efficiently, we often need to go *backwards*—to take a real image and find the noise vector that generates it.
+$$ \mathbf{z} = f^{-1}(\mathbf{x}) $$
+
+This requires the transformation $f$ (and its underlying matrices) to be **Invertible**. If the model loses information (determinant 0), we can't train it this way.
+</Callout>
+
+<InverseMatrixVis />
+
+## Interactive Playground
+
+[Interactive Marimo Notebook: The Undo Button](/notebooks/inverse-matrices)

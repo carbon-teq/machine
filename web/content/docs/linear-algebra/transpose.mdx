@@ -1,0 +1,94 @@
+---
+title: Matrix Transpose
+description: Flipping the grid, swapping roles.
+---
+
+import TransposeVis from '@/components/interactive/linear-algebra/TransposeVis';
+
+# Matrix Transpose: The Flip
+
+We have learned how to stretch space (determinant), rotate it (transformations), and undo it (inverse). Now, let's look at one of the simplest yet most powerful operations: the **Transpose**.
+
+Imagine writing a matrix on a transparent sheet of plastic. Now, pick up the top-left corner and the bottom-right corner, and **flip** the sheet over along the diagonal.
+
+This is the Transpose.
+
+## Geometric Intuition
+
+The Transpose, written as $\mathbf{A}^T$, swaps the **rows** and **columns** of a matrix.
+
+*   The first row becomes the first column.
+*   The second row becomes the second column.
+
+Visually, it looks like a reflection across the main diagonal (the line from top-left to bottom-right).
+
+<TransposeVis />
+
+## Formal Notation
+
+If $\mathbf{A}$ is an $m \times n$ matrix (m rows, n columns), then $\mathbf{A}^T$ is an $n \times m$ matrix.
+
+$$
+\mathbf{A} = \begin{bmatrix} a & b \\ c & d \end{bmatrix}
+\quad \longrightarrow \quad
+\mathbf{A}^T = \begin{bmatrix} a & c \\ b & d \end{bmatrix}
+$$
+
+Notice how $b$ and $c$ swapped places, while $a$ and $d$ (on the diagonal) stayed put.
+
+## Why Do We Care? (The "Why")
+
+At first glance, this just looks like bookkeeping. Why does it matter if we write numbers in a row or a column?
+
+### 1. The Dot Product in Disguise
+
+This is the most common trick in all of Machine Learning.
+
+Recall that Matrix Multiplication works by taking a **Row** from the first matrix and dotting it with a **Column** from the second.
+
+But vectors are usually just **Columns** ($n \times 1$).
+If you try to multiply two column vectors $\mathbf{a}$ and $\mathbf{b}$ directly, the dimensions don't match. You can't multiply an $(n \times 1)$ by an $(n \times 1)$.
+
+To make them "click" together, you have to lay the first one flat. You have to **Transpose** it.
+
+$$
+\mathbf{a} \cdot \mathbf{b} = \mathbf{a}^T \mathbf{b}
+$$
+
+$$
+\underbrace{\begin{bmatrix} a_1 & a_2 & a_3 \end{bmatrix}}_{1 \times 3 \text{ (Row)}} \underbrace{\begin{bmatrix} b_1 \\ b_2 \\ b_3 \end{bmatrix}}_{3 \times 1 \text{ (Column)}} = \underbrace{a_1 b_1 + a_2 b_2 + a_3 b_3}_{1 \times 1 \text{ (Scalar)}}
+$$
+
+This isn't just a notation trick. It tells us that **every** matrix multiplication is really just a bundle of dot products. When you see $\mathbf{A}\mathbf{B}$, you are really seeing every row of $\mathbf{A}$ being transposed and dotted with every column of $\mathbf{B}$.
+
+### 2. Data Batching in Machine Learning
+In ML, we often have a dataset $\mathbf{X}$ where:
+*   **Rows** are samples (different people).
+*   **Columns** are features (height, weight, age).
+
+Sometimes, the math requires us to group by features instead of samples. For example, to calculate the **Covariance Matrix** (how features relate to each other), we need to multiply the features by themselves.
+
+$$
+\text{Covariance} \propto \mathbf{X}^T \mathbf{X}
+$$
+
+By flipping $\mathbf{X}$ to $\mathbf{X}^T$, we align the dimensions so that the matrix multiplication sums over the *samples* and gives us a result that describes the *features*.
+
+## Properties
+
+1.  **Double Flip:** $(\mathbf{A}^T)^T = \mathbf{A}$. (Flipping twice gets you back to start).
+2.  **Sum:** $(\mathbf{A} + \mathbf{B})^T = \mathbf{A}^T + \mathbf{B}^T$.
+3.  **Product (The "Shoe-Sock" Rule):** $(\mathbf{AB})^T = \mathbf{B}^T \mathbf{A}^T$.
+    *   *Note the order swap!* Just like with inverses, when you reverse the operation, you must reverse the order.
+
+## AI/ML Relevance
+
+> [!TIP]
+> **Weights and Layers**
+> In a neural network layer $\mathbf{y} = \sigma(\mathbf{W}\mathbf{x} + \mathbf{b})$, the shape of $\mathbf{W}$ is crucial.
+>
+> If you are using a library like PyTorch or TensorFlow, you will often see errors like:
+> `RuntimeError: mat1 and mat2 shapes cannot be multiplied (32x784 and 256x10)`
+>
+> This usually means you forgot a transpose! You are trying to multiply a (Batch $\times$ Features) matrix by a (Features $\times$ Hidden) matrix, but your weight matrix might be stored as (Hidden $\times$ Features). A simple `.T` (transpose) fixes the alignment.
+
