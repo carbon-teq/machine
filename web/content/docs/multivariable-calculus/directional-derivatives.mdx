@@ -37,6 +37,14 @@ $$
 D_{\mathbf{u}}f = \nabla f \cdot \mathbf{u}
 $$
 
+Read this as a test for a proposed step direction.
+
+- If $\nabla f \cdot \mathbf{u} > 0$, moving along $\mathbf{u}$ increases the function.
+- If $\nabla f \cdot \mathbf{u} < 0$, moving along $\mathbf{u}$ decreases the function.
+- If $\nabla f \cdot \mathbf{u} = 0$, that direction is locally flat.
+
+So the directional derivative does not just tell us "the slope diagonally." It tells an optimizer whether a chosen direction is useful.
+
 ## 3. Symbol Dictionary
 
 - $\nabla f$: gradient vector (points steepest uphill)
@@ -98,7 +106,31 @@ D_{\mathbf{u}}f
 =2\sqrt{2}
 $$
 
+That number is positive, so this diagonal direction goes uphill.
+
+If we choose the opposite direction,
+$$
+-\mathbf{u}=
+-\frac{1}{\sqrt{2}}
+\begin{bmatrix}
+1 \\
+1
+\end{bmatrix}
+$$
+
+then
+$$
+D_{-\mathbf{u}}f = -2\sqrt{2}
+$$
+
+That direction goes downhill at the same local steepness.
+
+This is exactly why gradient descent uses the negative gradient direction. The gradient itself gives the steepest local increase; its opposite gives the steepest local decrease.
+
 > [!NOTE]
 > **ML Relevance**
 > The gradient gives the best uphill direction, but optimization methods can choose other directions too (for stability, momentum, constraints, or preconditioning). Directional derivatives tell us how good any chosen direction is.
 
+## Reader Checkpoint
+
+Before moving on, you should be able to explain why $\nabla f \cdot \mathbf{u}$ is positive for an uphill step, negative for a downhill step, and largest when $\mathbf{u}$ points in the same direction as the gradient.

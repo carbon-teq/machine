@@ -32,12 +32,16 @@ $$
 
 The **Column Space** of $\mathbf{A}$ (written as $\mathcal{C}(\mathbf{A})$) is the set of **all possible outputs** this function can produce.
 
+In ML language, the column space is the set of representations a linear layer can actually produce. If an output pattern lies outside this reachable set, no choice of input $\mathbf{x}$ can make the layer produce it. This is why the column space is not just abstract geometry; it tells us what a model component can express before any nonlinearity is applied.
+
 Think of $\mathbf{A}$ as a **Robot Arm** with specific joints.
 *   You give it a command $\mathbf{x}$ (angles for the joints).
 *   The hand moves to a position $\mathbf{b}$.
 
 If the robot has 3 independent joints, it can reach *any* point in the room. Its Column Space is the entire 3D space ($\mathbb{R}^3$).
 But if one joint is broken and stuck, the robot might only be able to draw on a flat whiteboard. It cannot reach out to grab you. Its Column Space is just a 2D plane (a subspace).
+
+For a matrix $\mathbf{A} \in \mathbb{R}^{m \times n}$, the column space lives in the output space $\mathbb{R}^m$. Its dimension is the rank of $\mathbf{A}$. A low-rank layer can still be useful, but it can only move data inside a lower-dimensional slice of the full output space.
 
 <Callout title="Real World Example: Color Gamuts" type="tip">
 Think of your computer monitor. It produces colors by mixing Red, Green, and Blue light.
@@ -60,6 +64,16 @@ $$
 
 *   **Intuition:** It is the "Blind Spot" of the matrix. Any data in the Null Space is invisible to the output.
 *   **Information Loss:** If your Null Space is large, your matrix is "losing" a lot of information. You cannot figure out what the command was just by looking at the hand position, because many different commands could have resulted in "stay still."
+
+In ML terms, the null space contains input directions the layer ignores. If two inputs differ only by a vector in the null space, the matrix maps them to the same output:
+
+$$
+\mathbf{A}(\mathbf{x}+\mathbf{n}) = \mathbf{A}\mathbf{x}
+\qquad \text{when} \qquad
+\mathbf{A}\mathbf{n}=\mathbf{0}
+$$
+
+That can be good or bad. It is good when the ignored direction is noise or redundancy. It is bad when the ignored direction contains information the task needs.
 
 ## Rank: The True Dimension
 

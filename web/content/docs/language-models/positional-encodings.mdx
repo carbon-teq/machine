@@ -1,0 +1,148 @@
+---
+title: Positional Encodings
+description: Adding word order to a model that processes tokens in parallel.
+---
+
+# Positional Encodings
+
+Self-attention compares tokens to other tokens.
+
+But by itself, attention does not know the order of the tokens.
+
+If we only give a transformer a bag of token embeddings, these two sequences contain the same words:
+
+```text
+the dog chased the cat
+the cat chased the dog
+```
+
+The meaning is different because order matters.
+
+So a transformer needs a way to represent position.
+
+## The Problem
+
+In an RNN, order is built into the computation.
+
+The model reads token $1$, then token $2$, then token $3$.
+
+In a transformer, all positions are processed in parallel. That is great for speed, but it removes the natural sense of time.
+
+So we add position information to the token representation.
+
+If $e_i$ is the token embedding at position $i$, and $p_i$ is the positional encoding for position $i$, the input becomes:
+
+$$
+x_i = e_i + p_i
+$$
+
+Now the model sees both:
+
+- what the token is
+- where the token is
+
+### Symbol Dictionary
+
+| Symbol | Name | Meaning |
+| :--- | :--- | :--- |
+| $e_i$ | Token embedding | The learned vector for the token at position $i$. |
+| $p_i$ | Positional encoding | A vector representing position $i$. |
+| $x_i$ | Position-aware input | The token embedding plus position information. |
+| $i$ | Position index | The location of the token in the sequence. |
+| $d$ | Model dimension | The size of each representation vector. |
+
+## Learned Positional Embeddings
+
+The simplest approach is to learn a position vector for each possible position.
+
+Position $1$ has a learned vector.
+
+Position $2$ has a learned vector.
+
+And so on, up to the maximum context length.
+
+Then training decides what each position vector should be.
+
+This is flexible, but it ties the model to the range of positions it saw during training.
+
+## Sinusoidal Positional Encodings
+
+The original transformer used fixed sinusoidal encodings.
+
+For position $\text{pos}$ and dimension index $i$:
+
+$$
+PE(\text{pos}, 2i) =
+\sin\left(\frac{\text{pos}}{10000^{2i/d}}\right)
+$$
+
+$$
+PE(\text{pos}, 2i + 1) =
+\cos\left(\frac{\text{pos}}{10000^{2i/d}}\right)
+$$
+
+Different dimensions oscillate at different frequencies.
+
+Some dimensions change quickly with position. Others change slowly.
+
+Together, they create a rich signature for each location.
+
+## Why Sines And Cosines Help
+
+Sinusoidal encodings have a useful property:
+
+relative shifts can be represented through linear relationships.
+
+In plain terms, the model can learn patterns like:
+
+- attend to the previous token
+- attend to the token two positions back
+- compare nearby words
+- recognize repeated spacing patterns
+
+The encoding is not just an ID number. It gives the model a smooth geometric way to reason about distance.
+
+## Relative Position
+
+Absolute position says:
+
+> This token is at position $17$.
+
+Relative position says:
+
+> This token is three positions before the current token.
+
+For language, relative position is often more natural.
+
+The phrase `"not very good"` has local structure regardless of whether it appears at the start or end of a paragraph.
+
+Many modern transformers use some form of relative positional information or rotary positional embeddings.
+
+## Rotary Positional Embeddings
+
+Rotary positional embeddings, often called RoPE, rotate query and key vectors based on position.
+
+Instead of simply adding $p_i$ to the token embedding, RoPE changes how attention scores depend on relative position.
+
+The key intuition:
+
+> Position is injected into the geometry of query-key comparison.
+
+This helps the model represent relative distances inside attention itself.
+
+## What Happens Without Position?
+
+Without positional information, self-attention is permutation-invariant in a dangerous way.
+
+If the input tokens are shuffled, the model has no built-in way to know that the order changed.
+
+It may still see the same token set, but grammar and meaning can collapse.
+
+That is why positional encoding is not a decoration. It is a necessary part of making parallel sequence processing work.
+
+## Key Questions
+
+- **How do we tell a parallel model about word order?** Add or inject position information into token representations.
+- **Why does self-attention need help with order?** Attention compares token vectors, but the raw operation does not inherently know sequence position.
+- **What is the difference between absolute and relative position?** Absolute position names where a token is; relative position describes distance between tokens.
+- **Why do modern models care about positional design?** Context length, extrapolation, and long-range reasoning all depend partly on how position is represented.

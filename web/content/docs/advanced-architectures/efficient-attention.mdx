@@ -1,0 +1,159 @@
+---
+title: Efficient Attention
+description: Making attention faster and more memory efficient for long sequences.
+---
+
+# Efficient Attention
+
+Standard attention is powerful because every token can compare itself with every other token.
+
+That same strength becomes the bottleneck.
+
+For a sequence of length $T$, full attention builds a $T \times T$ score matrix.
+
+That means the cost grows like:
+
+$$
+O(T^2)
+$$
+
+Double the context length, and the attention matrix becomes roughly four times larger.
+
+This is why long-context models are hard.
+
+## Where The Cost Comes From
+
+Scaled dot-product attention is:
+
+$$
+\text{Attention}(Q, K, V)
+=
+\text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V
+$$
+
+The expensive part is $QK^\top$.
+
+If $Q$ has one query per token and $K$ has one key per token, then every query is compared with every key.
+
+For $T$ tokens, that is:
+
+$$
+T \cdot T = T^2
+$$
+
+comparisons per head.
+
+### Symbol Dictionary
+
+| Symbol | Name | Meaning |
+| :--- | :--- | :--- |
+| $T$ | Sequence length | Number of tokens in the context. |
+| $Q$ | Query matrix | Query vectors for all positions. |
+| $K$ | Key matrix | Key vectors for all positions. |
+| $V$ | Value matrix | Value vectors for all positions. |
+| $d_k$ | Key dimension | Scaling dimension for attention scores. |
+| $O(T^2)$ | Quadratic complexity | Cost grows with all token pairs. |
+
+## FlashAttention
+
+FlashAttention does not change the mathematical result of attention.
+
+It changes how attention is computed on hardware.
+
+The key idea is to avoid materializing the full attention matrix in slow high-bandwidth memory.
+
+Instead, it computes attention in blocks, keeps intermediate values in faster memory when possible, and carefully recomputes or streams values so memory traffic is reduced.
+
+The formula is still:
+
+$$
+\text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V
+$$
+
+but the implementation is much more efficient.
+
+That distinction matters.
+
+FlashAttention is not "approximate attention." It is exact attention with better memory behavior.
+
+## Why Memory Movement Matters
+
+On GPUs, arithmetic is often not the only limit.
+
+Moving huge matrices between memory levels can dominate runtime.
+
+Standard attention may create and store a large $T \times T$ matrix of scores or probabilities.
+
+FlashAttention reduces this memory traffic by processing smaller blocks and maintaining numerically stable softmax statistics as it goes.
+
+This makes training and inference faster, especially for longer sequences.
+
+## Linear Attention
+
+Some efficient attention methods do change the attention computation.
+
+The goal is to reduce the cost from:
+
+$$
+O(T^2)
+$$
+
+to something closer to:
+
+$$
+O(T)
+$$
+
+One broad strategy is to rewrite attention using feature maps so the model avoids all pairwise token comparisons.
+
+Instead of computing:
+
+$$
+\text{softmax}(QK^\top)V
+$$
+
+the method tries to use a kernel-like feature map $\phi$:
+
+$$
+\phi(Q)(\phi(K)^\top V)
+$$
+
+The grouping changes the computation order.
+
+If done carefully, the model can process sequences with cost closer to linear in $T$.
+
+The tradeoff is that approximate or modified attention may not behave exactly like full softmax attention.
+
+## Sparse Attention
+
+Another approach is to avoid comparing every token with every other token.
+
+For example, a token might attend to:
+
+- nearby tokens in a local window
+- special global tokens
+- selected retrieved tokens
+- periodic long-range positions
+
+This reduces the number of comparisons.
+
+Sparse attention works best when the task does not need every position to interact with every other position at every layer.
+
+## The Real Question
+
+The question is not simply:
+
+> Can we make attention faster?
+
+It is:
+
+> Can we make attention faster without losing the relationships that matter?
+
+Full attention is expensive because it is flexible. Efficient attention methods try to keep the useful flexibility while removing unnecessary computation or memory movement.
+
+## Key Questions
+
+- **Can we make attention faster than quadratic time?** Sometimes, by changing the computation pattern or approximation. FlashAttention mainly improves memory efficiency while keeping exact attention.
+- **Why is long context expensive?** Full attention compares all token pairs, creating quadratic cost.
+- **What is the difference between FlashAttention and linear attention?** FlashAttention computes exact attention more efficiently; linear attention changes the attention form to reduce scaling.
+- **What is the tradeoff?** Speed and context length can improve, but modified attention may lose some expressiveness.

@@ -1,0 +1,156 @@
+---
+title: State Space Models
+description: Efficient sequence models that update a compressed state over time.
+---
+
+# State Space Models
+
+Transformers are powerful because attention gives tokens direct access to other tokens.
+
+But full attention is expensive for long sequences.
+
+State Space Models, or SSMs, revisit an older idea:
+
+**Can we process a sequence by updating a compact state, like an RNN, while still learning long-range structure effectively?**
+
+Modern SSMs such as Mamba made this question important again.
+
+## The State Idea
+
+An SSM keeps a hidden state $h_t$ that evolves over time.
+
+At each step, the model receives input $x_t$, updates the state, and produces output $y_t$.
+
+A simple linear state-space form is:
+
+$$
+h_t = A h_{t-1} + B x_t
+$$
+
+$$
+y_t = C h_t + D x_t
+$$
+
+This looks RNN-like because the state moves forward through the sequence.
+
+The difference is that SSMs are designed with structure that makes long sequence processing efficient and stable.
+
+### Symbol Dictionary
+
+| Symbol | Name | Meaning |
+| :--- | :--- | :--- |
+| $x_t$ | Input | Token representation at time $t$. |
+| $h_t$ | State | Compressed memory after processing step $t$. |
+| $y_t$ | Output | Representation produced at step $t$. |
+| $A$ | State transition | Controls how memory evolves. |
+| $B$ | Input projection | Controls how input enters the state. |
+| $C$ | Output projection | Controls how state becomes output. |
+| $D$ | Skip term | Lets input directly influence output. |
+
+## Why SSMs Are Efficient
+
+Attention stores and compares many token pairs.
+
+SSMs update a state as they scan through the sequence.
+
+That can make inference scale closer to:
+
+$$
+O(T)
+$$
+
+instead of:
+
+$$
+O(T^2)
+$$
+
+where $T$ is the sequence length.
+
+This is attractive for long contexts, audio, genomics, time series, and any setting where sequences become very long.
+
+## The Convolution View
+
+For certain SSMs, the recurrence can be transformed into a convolution.
+
+That means the model can be trained efficiently in parallel, even though the conceptual story is sequential.
+
+So SSMs try to get two nice properties at once:
+
+- RNN-like efficient state updates
+- parallel training behavior closer to convolutional or transformer-style computation
+
+This is one reason they are interesting.
+
+## Selective State Spaces
+
+A basic linear SSM has fixed transition behavior.
+
+Mamba introduced a selective mechanism where parts of the state update depend on the input.
+
+In plain language:
+
+> The model can decide what to remember or forget based on the current token.
+
+This is important because language is not uniform.
+
+Some tokens are filler.
+
+Some tokens change the meaning of everything that follows.
+
+Some tokens introduce names, variables, instructions, or constraints.
+
+A selective SSM can adapt its memory update to the content being read.
+
+## Comparing RNNs, Transformers, And SSMs
+
+RNNs:
+
+- efficient step-by-step inference
+- natural sequence order
+- historically struggled with long-range gradients
+
+Transformers:
+
+- direct token-to-token access
+- highly parallel training
+- expensive full attention for long sequences
+
+SSMs:
+
+- compressed recurrent state
+- efficient long-sequence scaling
+- modern designs improve stability and expressiveness
+
+The dream is to combine the efficiency of recurrence with enough expressive power to compete with attention.
+
+## Mamba And Jamba
+
+Mamba is an SSM-based architecture built around selective state spaces.
+
+It is designed to handle long sequences efficiently without standard attention in every layer.
+
+Jamba combines ideas from transformers, MoE, and state-space layers.
+
+That hybrid direction is important. The future may not be "only transformers" or "only SSMs." It may be architectures that use different sequence mechanisms where each one fits best.
+
+## The Main Tradeoff
+
+Attention is flexible because any token can directly look at any other token.
+
+SSMs are efficient because they compress history into a state.
+
+Compression is both the advantage and the risk.
+
+If the state preserves the right information, SSMs can be extremely efficient.
+
+If the state discards something important, the model may struggle to recover it later.
+
+That is the central tension.
+
+## Key Questions
+
+- **Can we combine RNN efficiency with transformer power?** That is the goal of modern SSM research.
+- **Why are SSMs efficient?** They update a compressed state rather than comparing all token pairs.
+- **What makes Mamba different from older sequence models?** It uses selective state updates that depend on the input.
+- **What is the tradeoff?** Efficient compression can help long sequences, but the model must preserve the right information in its state.

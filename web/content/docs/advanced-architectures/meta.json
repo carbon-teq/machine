@@ -1,0 +1,8 @@
+{
+  "title": "Advanced Architectures",
+  "pages": [
+    "efficient-attention",
+    "mixture-of-experts",
+    "state-space-models"
+  ]
+}

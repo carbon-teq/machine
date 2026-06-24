@@ -51,6 +51,20 @@ $$
 \mathbf{z} = \mathbf{W}\mathbf{x} + \mathbf{b}
 $$
 
+The shapes are part of the meaning. If a layer receives $n$ input features and produces $m$ outputs, then:
+
+$$
+\mathbf{x} \in \mathbb{R}^{n},
+\qquad
+\mathbf{W} \in \mathbb{R}^{m \times n},
+\qquad
+\mathbf{b} \in \mathbb{R}^{m},
+\qquad
+\mathbf{z} \in \mathbb{R}^{m}
+$$
+
+So each row of $\mathbf{W}$ is one neuron's weight vector, and the layer produces one raw score per row.
+
 Then it applies an activation function:
 
 $$
@@ -101,6 +115,28 @@ $$
 $$
 
 Now the compact notation should feel less like a jump and more like shorthand for a repeated process.
+
+### Shape Reading
+
+For a two-layer network, the dimensions should line up like a chain:
+
+$$
+\mathbf{x} \in \mathbb{R}^{n}
+\rightarrow
+\mathbf{a}^{[1]} \in \mathbb{R}^{h}
+\rightarrow
+\hat{y} \in \mathbb{R}^{o}
+$$
+
+That means:
+
+$$
+\mathbf{W}^{[1]} \in \mathbb{R}^{h \times n},
+\qquad
+\mathbf{W}^{[2]} \in \mathbb{R}^{o \times h}
+$$
+
+In PyTorch, a batch usually stores examples as rows, so code often appears as `x @ W.T + b`. The math and code are the same idea with a different storage convention.
 
 ## Why The Middle Quantity Matters
 

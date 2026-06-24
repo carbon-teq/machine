@@ -1,0 +1,186 @@
+---
+title: The Attention Mechanism
+description: Letting each token focus on the parts of the sequence that matter.
+---
+
+# The Attention Mechanism
+
+RNNs carry information through a chain of hidden states.
+
+That creates a bottleneck. If token $1$ matters to token $40$, the information must survive many steps.
+
+Attention changes the question.
+
+Instead of asking:
+
+> Can memory carry the right information all the way forward?
+
+attention asks:
+
+> Which earlier tokens should this token look at directly?
+
+That one shift is the beginning of modern language models.
+
+## The Core Intuition
+
+Imagine the sentence:
+
+```text
+The animal did not cross the street because it was tired.
+```
+
+What does `"it"` refer to?
+
+Probably `"animal"`.
+
+The token `"it"` needs information from a token several positions earlier. Attention gives it a direct way to gather that information.
+
+Each token builds a weighted mixture of other token representations.
+
+If `"it"` should focus strongly on `"animal"`, the attention weight between them should be high.
+
+If `"it"` should ignore `"street"`, that weight should be lower.
+
+## Queries, Keys, And Values
+
+Attention uses three learned views of each token:
+
+- **Query:** what this token is looking for
+- **Key:** what this token offers as a match
+- **Value:** the information this token can contribute
+
+For an input representation $x_i$, we compute:
+
+$$
+q_i = W_Q x_i
+$$
+
+$$
+k_i = W_K x_i
+$$
+
+$$
+v_i = W_V x_i
+$$
+
+The query from one token is compared with keys from other tokens.
+
+The values are what get mixed together after we know the attention weights.
+
+### Symbol Dictionary
+
+| Symbol | Name | Meaning |
+| :--- | :--- | :--- |
+| $x_i$ | Token representation | The vector for token position $i$. |
+| $q_i$ | Query vector | What token $i$ is searching for. |
+| $k_i$ | Key vector | What token $i$ can be matched by. |
+| $v_i$ | Value vector | The information token $i$ contributes. |
+| $W_Q, W_K, W_V$ | Projection matrices | Learned matrices that create queries, keys, and values. |
+| $\alpha_{ij}$ | Attention weight | How much token $i$ attends to token $j$. |
+
+## Scaled Dot-Product Attention
+
+To decide how much token $i$ should attend to token $j$, we compare $q_i$ and $k_j$ with a dot product:
+
+$$
+\text{score}_{ij} = q_i \cdot k_j
+$$
+
+If the vectors point in similar directions, the dot product is large.
+
+Then we scale by $\sqrt{d_k}$, where $d_k$ is the key dimension:
+
+$$
+\text{score}_{ij} =
+\frac{q_i \cdot k_j}{\sqrt{d_k}}
+$$
+
+The scaling keeps scores from becoming too large when vectors have many dimensions.
+
+Then we apply softmax across all possible source tokens:
+
+$$
+\alpha_{ij} =
+\frac{\exp(\text{score}_{ij})}
+{\sum_m \exp(\text{score}_{im})}
+$$
+
+Now the weights sum to $1$.
+
+Finally, token $i$ receives a weighted sum of value vectors:
+
+$$
+z_i = \sum_j \alpha_{ij} v_j
+$$
+
+This $z_i$ is the context-aware representation for token $i$.
+
+## A Small Worked Example
+
+Suppose token `"it"` compares itself to three earlier tokens:
+
+| Source token | Score |
+| :--- | ---: |
+| animal | $3.0$ |
+| street | $0.5$ |
+| tired | $1.0$ |
+
+Softmax turns these scores into weights. Roughly:
+
+| Source token | Attention weight |
+| :--- | ---: |
+| animal | $0.82$ |
+| street | $0.07$ |
+| tired | $0.11$ |
+
+So the new representation for `"it"` becomes mostly informed by `"animal"`.
+
+That does not mean the model has a human-like concept of reference. It means the learned vector matching mechanism found `"animal"` useful for updating `"it"`.
+
+## Attention As A Heatmap
+
+For a sequence of $T$ tokens, attention creates a $T \times T$ matrix.
+
+Rows represent the token doing the looking.
+
+Columns represent the token being looked at.
+
+Each cell contains an attention weight:
+
+$$
+A_{ij} = \alpha_{ij}
+$$
+
+A heatmap makes this visual:
+
+- bright cells mean strong attention
+- dark cells mean weak attention
+- diagonal patterns often mean tokens attend to nearby context
+- off-diagonal bright cells can reveal long-distance relationships
+
+This is why attention is often described as "word-to-word relationships."
+
+## Why Attention Handles Distance Better Than RNNs
+
+In an RNN, information from token $j$ reaches token $i$ through many recurrent steps if they are far apart.
+
+In attention, token $i$ can assign weight directly to token $j$.
+
+That direct connection is the big advantage.
+
+The cost is that every token may compare itself with every other token. For $T$ tokens, that is about:
+
+$$
+T^2
+$$
+
+pairwise comparisons.
+
+So attention is powerful, but standard attention is expensive for long sequences.
+
+## Key Questions
+
+- **How can a model focus on specific words regardless of distance?** It computes attention weights between token pairs directly.
+- **What are queries, keys, and values?** Queries search, keys match, and values carry the information to be mixed.
+- **Why use softmax?** It converts raw scores into a probability-like distribution over tokens.
+- **What is the main tradeoff?** Direct token-to-token access is powerful, but full attention scales quadratically with sequence length.
