@@ -1,19 +1,209 @@
 ---
-title: Attention in Transformers
-description: Keys, Queries, and Values
+title: Transformers
+description: Processing an entire sequence with self-attention and feedforward blocks.
 ---
 
-# Attention in Transformers
+# Transformers
 
-The mechanism that allowed models to process sequences in parallel and weight importance differently.
+RNNs read tokens one after another.
 
-## Concept
-1. **Query:** What I'm looking for.
-2. **Key:** What I have to offer.
-3. **Value:** The information I actually contain.
+Transformers process a whole sequence in parallel.
 
-## Placeholder for Manim Video
-[Include Manim Video here: Visualizing information flow in Attention blocks]
+That does not mean every token ignores order or context. It means the model builds contextual representations using self-attention instead of a sequential hidden-state loop.
 
-## Placeholder for Marimo Notebook
-[Interactive Marimo Notebook: Scaled Dot-Product Attention explorer]
+The result is an architecture that trains efficiently on modern hardware and can learn rich relationships across a sequence.
+
+## The Transformer Block
+
+A transformer is built from repeated blocks.
+
+A simplified encoder-style block looks like this:
+
+```text
+token representations
+        |
+   self-attention
+        |
+   add and normalize
+        |
+ feedforward network
+        |
+   add and normalize
+        |
+updated representations
+```
+
+The two main sublayers are:
+
+- **self-attention**, where tokens exchange information
+- **feedforward network**, where each token representation is transformed independently
+
+Residual connections and normalization help training stay stable.
+
+## Self-Attention
+
+Self-attention means the queries, keys, and values all come from the same sequence.
+
+For every token position, the model asks:
+
+> Which other positions in this same sequence are useful for updating me?
+
+This is how a transformer turns isolated token embeddings into contextual embeddings.
+
+The word `"bank"` should have a different representation in:
+
+```text
+I deposited money at the bank.
+```
+
+than in:
+
+```text
+The boat reached the river bank.
+```
+
+The token is the same, but the context changes its meaning.
+
+## Matrix Form
+
+For a sequence represented as a matrix $X$, the model computes:
+
+$$
+Q = XW_Q
+$$
+
+$$
+K = XW_K
+$$
+
+$$
+V = XW_V
+$$
+
+Then attention is:
+
+$$
+\text{Attention}(Q, K, V)
+=
+\text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V
+$$
+
+This is the compact formula behind the attention layer.
+
+### Symbol Dictionary
+
+| Symbol | Name | Meaning |
+| :--- | :--- | :--- |
+| $X$ | Input matrix | One row per token representation. |
+| $Q$ | Query matrix | Query vectors for all tokens. |
+| $K$ | Key matrix | Key vectors for all tokens. |
+| $V$ | Value matrix | Value vectors for all tokens. |
+| $d_k$ | Key dimension | Used to scale attention scores. |
+| $QK^\top$ | Score matrix | All query-key dot products. |
+
+## Multi-Head Attention
+
+One attention pattern is not enough.
+
+A token might need to attend to:
+
+- the previous word for local grammar
+- a faraway noun for reference
+- punctuation for sentence structure
+- a keyword for topic
+
+Multi-head attention lets the model learn several attention patterns at once.
+
+Each head has its own projection matrices:
+
+$$
+\text{head}_r =
+\text{Attention}(XW_Q^{(r)}, XW_K^{(r)}, XW_V^{(r)})
+$$
+
+Then the heads are concatenated and projected:
+
+$$
+\text{MultiHead}(X) =
+\text{Concat}(\text{head}_1, \ldots, \text{head}_H)W_O
+$$
+
+The heads are not hand-assigned meanings. During training, they discover useful ways to route information.
+
+## The Feedforward Layer
+
+After attention mixes information across positions, each position passes through the same feedforward network:
+
+$$
+\text{FFN}(x) = W_2 \sigma(W_1 x + b_1) + b_2
+$$
+
+Attention answers:
+
+> What information should this token gather from the sequence?
+
+The feedforward layer answers:
+
+> Now that the token has gathered context, how should its representation be transformed?
+
+Both are needed.
+
+## Encoder-Decoder Transformers
+
+The original transformer was designed for sequence-to-sequence tasks like translation.
+
+It had:
+
+- an **encoder**, which reads the input sentence
+- a **decoder**, which generates the output sentence
+
+The encoder uses bidirectional self-attention, so each input token can attend to every other input token.
+
+The decoder uses masked self-attention, so while generating token $t$, it can only attend to earlier generated tokens.
+
+The decoder also uses cross-attention, where decoder queries attend to encoder keys and values.
+
+That is how an output sentence can look back at the input sentence while being generated.
+
+## Decoder-Only Transformers
+
+Many large language models use a decoder-only transformer.
+
+They are trained to predict the next token:
+
+$$
+P(w_t \mid w_1, w_2, \ldots, w_{t-1})
+$$
+
+To prevent cheating, they use a causal mask.
+
+This means token $t$ cannot attend to future tokens.
+
+The attention matrix becomes lower triangular:
+
+```text
+token 1 can see: token 1
+token 2 can see: token 1, token 2
+token 3 can see: token 1, token 2, token 3
+```
+
+That masking turns the transformer into an autoregressive language model.
+
+## Why Transformers Process Sentences At Once
+
+The key parallelism comes from computing $Q$, $K$, $V$, and $QK^\top$ for all positions as matrix operations.
+
+Unlike an RNN, token $10$ does not need to wait for token $9$'s hidden state to be computed step by step.
+
+All token representations can be updated in one layer at the same time.
+
+They still exchange information through attention, but the computation is batched across the sequence.
+
+This is why transformers fit GPUs so well.
+
+## Key Questions
+
+- **How can we process an entire sentence at once?** Use matrix operations to compute attention across all positions in parallel.
+- **What does self-attention do inside a transformer?** It lets each token gather information from other tokens in the same sequence.
+- **Why use multiple heads?** Different heads can learn different relationship patterns.
+- **What is the difference between encoder-decoder and decoder-only models?** Encoder-decoder models map input sequences to output sequences; decoder-only models generate the next token from previous tokens.

@@ -1,0 +1,156 @@
+---
+title: Mixture of Experts
+description: Scaling model capacity by activating only part of the network per token.
+---
+
+# Mixture Of Experts
+
+A dense transformer uses the same feedforward layers for every token.
+
+If the model has more parameters, every token usually pays more compute.
+
+Mixture of Experts changes that bargain.
+
+It makes the model huge in total capacity, but only activates a small part of that capacity for each token.
+
+That is why MoE is called **sparse activation**.
+
+## The Basic Idea
+
+Instead of one feedforward network inside a transformer block, use many expert feedforward networks.
+
+For each token, a router chooses which expert or experts should process it.
+
+```text
+token representation
+        |
+      router
+   /    |    \
+expert expert expert
+   \    |    /
+ combined output
+```
+
+If there are $64$ experts, a token may use only the top $2$.
+
+So the model can have many parameters without using all of them on every token.
+
+## Routing
+
+Let $x$ be the token representation.
+
+A router computes a score for each expert:
+
+$$
+r = W_r x
+$$
+
+Then it selects the top $k$ experts.
+
+If expert $e$ is selected, it produces:
+
+$$
+E_e(x)
+$$
+
+The final MoE output is a weighted combination:
+
+$$
+\text{MoE}(x) =
+\sum_{e \in \text{TopK}(r)}
+g_e E_e(x)
+$$
+
+where $g_e$ is the router weight for expert $e$.
+
+### Symbol Dictionary
+
+| Symbol | Name | Meaning |
+| :--- | :--- | :--- |
+| $x$ | Token representation | The vector being routed. |
+| $E_e$ | Expert $e$ | One specialist feedforward network. |
+| $r$ | Router scores | Scores used to choose experts. |
+| $W_r$ | Router matrix | Learned routing parameters. |
+| $k$ | Active experts | Number of experts used per token. |
+| $g_e$ | Gate weight | How strongly expert $e$ contributes. |
+
+## Why This Helps Scaling
+
+Suppose a dense feedforward layer has $1$ billion parameters and every token uses all of them.
+
+Now imagine an MoE layer with $16$ experts, each with $1$ billion parameters, but each token uses only $2$ experts.
+
+Total capacity:
+
+$$
+16 \text{ billion parameters}
+$$
+
+Active capacity per token:
+
+$$
+2 \text{ billion parameters}
+$$
+
+The model stores many specialists, but each token only consults a few.
+
+This can improve quality without increasing compute in proportion to total parameter count.
+
+## What Experts Learn
+
+Experts are not usually assigned by hand.
+
+The router and experts train together.
+
+One expert may become useful for code-like patterns.
+
+Another may become useful for factual phrases.
+
+Another may handle certain languages, formats, or reasoning patterns.
+
+But these specializations are emergent, not guaranteed. An expert is just a learned function that receives routed tokens.
+
+## Load Balancing
+
+Routing creates a new problem.
+
+What if the router sends almost every token to the same expert?
+
+Then one expert becomes overloaded, other experts are wasted, and hardware efficiency suffers.
+
+MoE training often adds a load-balancing loss to encourage tokens to spread across experts.
+
+The goal is not perfectly uniform routing. The goal is to prevent collapse.
+
+## Capacity Limits
+
+In practical systems, each expert can process only a limited number of tokens per batch.
+
+If too many tokens route to the same expert, some may be dropped, rerouted, or handled with special fallback logic.
+
+This is one reason MoE systems are more complex to train and serve than dense models.
+
+## Dense Versus Sparse Compute
+
+Dense model:
+
+- all parameters in a layer are active for every token
+- simpler execution
+- predictable compute
+
+MoE model:
+
+- only selected experts are active for each token
+- much larger total parameter count
+- more routing and communication complexity
+
+The benefit is scale.
+
+The cost is engineering complexity.
+
+## Key Questions
+
+- **How can models be huge but cheap to run?** Use many experts but activate only a few per token.
+- **What does the router do?** It selects which expert networks should process each token.
+- **Why is load balancing needed?** Without it, routing can collapse onto a few experts and waste capacity.
+- **What is the tradeoff?** MoE increases total capacity efficiently, but makes training and deployment more complex.

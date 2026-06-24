@@ -75,6 +75,19 @@ model = nn.Sequential(
 )
 ```
 
+Read the shapes directly from the layers:
+
+- `nn.Linear(2, 4)` maps each example from $2$ features to $4$ hidden activations.
+- `nn.Linear(4, 1)` maps those $4$ activations to $1$ output logit.
+
+For a batch of $32$ examples, the tensors move like this:
+
+$$
+(32, 2) \rightarrow (32, 4) \rightarrow (32, 1)
+$$
+
+That first dimension is the batch dimension; the layer acts on each row using the same learned weights.
+
 We need to measure how wrong the model's guesses are. For binary classification, we compare the raw output scores (logits) against the targets using a loss function:
 
 ```python
@@ -111,6 +124,12 @@ optimizer.step()
 When we call `loss.backward()`, PyTorch walks backward through the computation graph and fills in gradient tensors (like `weight.grad` and `bias.grad`) for every parameter. We do not manually type the chain rule; PyTorch applies it for us.
 
 Then `optimizer.step()` uses those gradients to adjust the weights, scaled by the learning rate (`lr=0.1`).
+
+The shape rule continues backward. The gradient stored in each parameter has the same shape as that parameter:
+
+- a weight matrix receives a weight-gradient matrix
+- a bias vector receives a bias-gradient vector
+- the optimizer updates each parameter element using its matching gradient element
 
 ## The Complete PyTorch Loop & Tracking Shapes
 

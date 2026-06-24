@@ -454,3 +454,7 @@ They may use different architectures, but they all depend on the same core idea:
 - **What is backpropagation?** It is the process of sending the error signal backward through the network to compute gradients for every parameter.
 - **Why do we need the chain rule?** Because a parameter affects the cost through a chain of intermediate quantities.
 - **What does a gradient mean?** It tells us how a tiny nudge to a parameter would change the cost.
+
+## Reader Checkpoint
+
+Before moving on, you should be able to explain backpropagation without magic words: cache the forward-pass values, start from the loss, multiply local derivatives backward, reuse the gradient signal, and fill in one gradient for each parameter.

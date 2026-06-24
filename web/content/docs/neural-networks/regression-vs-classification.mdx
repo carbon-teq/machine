@@ -9,60 +9,105 @@ Neural networks can solve many problems, but they generally fall into two catego
 1.  **Regression:** Predicting a continuous number (e.g., house price, temperature).
 2.  **Classification:** Predicting a discrete label (e.g., cat vs. dog, spam vs. ham).
 
-## 1. The Hook: What are we predicting?
+## What Are We Predicting?
 
-If you are predicting the price of a house, you want a number like $500,000.
-If you are predicting if an email is spam, you want a probability like 0.9 (90%).
+If you are predicting the price of a house, you want a number like `$500,000`.
 
-## 2. Geometric Intuition: The Difference
+If you are predicting whether an email is spam, you usually want a probability-like score such as $0.9$, meaning "the model is very confident this is spam."
 
-*   **Regression:** Fitting a curve through data points.
-*   **Classification:** Drawing a decision boundary between groups of points.
+That difference changes the final layer, the interpretation of the output, and the loss function.
 
-## 3. Formal Notation: Loss Functions
+## The Geometric Difference
 
-**Regression (Mean Squared Error - MSE):**
+**Regression** is about closeness on a number line.
+
+If the target is $500000$ and the model predicts $510000$, the prediction is wrong by $10000$. The error has a meaningful distance.
+
+**Classification** is about assigning probability mass to the correct class.
+
+For a cat-vs-dog model, class `cat` is not "numerically close" to class `dog`. The useful question is: how much probability did the model place on the correct class?
+
+## Why MSE Fits Regression
+
+Mean squared error measures numeric distance:
+
 $$
 J = \frac{1}{m} \sum (y - \hat{y})^2
 $$
 
-**Binary Classification (Binary Cross-Entropy - BCE):**
+Squaring does two useful things:
+
+- large mistakes are punished more than small mistakes
+- positive and negative errors do not cancel out
+
+For regression, this matches the task. A prediction of $510000$ is better than $700000$ when the target is $500000$, because it is numerically closer.
+
+## Why Cross-Entropy Fits Classification
+
+Binary cross-entropy is:
+
 $$
 J = -\frac{1}{m} \sum (y \log \hat{y} + (1-y) \log (1-\hat{y}))
 $$
 
-**Multi-Class Classification (Categorical Cross-Entropy):**
+For multi-class classification:
+
 $$
 J = -\sum y_i \log(\hat{y}_i)
 $$
 
-## 4. The Mechanics: Implementation
+The key idea is simple:
+
+> The model is punished for assigning low probability to the correct class.
+
+Suppose the true class is `cat`.
+
+- Predicting $P(\text{cat})=0.9$ gives a small loss.
+- Predicting $P(\text{cat})=0.5$ gives a larger loss.
+- Predicting $P(\text{cat})=0.01$ gives a very large loss.
+
+That last case matters. Cross-entropy heavily punishes confident wrong predictions, which is exactly what we want in classification.
+
+## Logits, Sigmoid, And Softmax
+
+Neural networks often produce raw scores called **logits** before probabilities.
+
+For binary classification, a sigmoid turns one logit into a probability:
+
+$$
+\hat{y} = \sigma(z)
+$$
+
+For multi-class classification, softmax turns a vector of logits into a probability distribution:
+
+$$
+\hat{y}_i =
+\frac{e^{z_i}}{\sum_j e^{z_j}}
+$$
+
+In PyTorch, `nn.CrossEntropyLoss()` expects raw logits, not already-softmaxed probabilities. It applies the stable log-softmax calculation internally.
+
+## Implementation Reading
 
 In PyTorch:
 *   **Regression:** `nn.MSELoss()`
-*   **Classification:** `nn.CrossEntropyLoss()`
+*   **Binary classification:** `nn.BCEWithLogitsLoss()`
+*   **Multi-class classification:** `nn.CrossEntropyLoss()`
 
-## 5. AI/ML Relevance
+The "with logits" part means the loss function expects raw scores and handles the sigmoid or log-softmax step in a numerically stable way.
 
-Choosing the wrong loss function will make your model fail to learn. It is the most critical design choice after architecture.
+## AI/ML Relevance
 
-## 6. Interactive Lab
+Choosing the loss function decides what kind of mistake the model cares about.
 
-### Planned Interactive Components
+- MSE says: "be numerically close."
+- Cross-entropy says: "put high probability on the correct class."
 
-**1. Manim Animation: Fitting vs. Separating**
-*   **Split Screen:**
-    *   **Left (Regression):** Points scattered along a trend. A line moves to *minimize the distance* to the points (MSE).
-    *   **Right (Classification):** Red and Blue points. A line moves to *maximize the margin* between the groups (BCE).
-*   **Visual:** Show the "error bars" (residuals) for regression vs. the "probability penalties" for classification.
+That is why the loss must match the task.
 
-**2. Marimo Notebook: Loss Function Selector**
-*   **Input:** User selects a dataset type (House Prices vs. Spam Detection).
-*   **Action:** User selects a loss function (MSE, BCE, MAE).
-*   **Feedback:** The system explains *why* the choice is good or bad.
-    *   *Example:* "Using MSE for classification is bad because it doesn't punish confident wrong answers heavily enough."
+## Reader Checkpoint
 
-## 7. Key Questions Answered
-
-*   [ ] **Are we predicting a number or a category?** This determines your loss function.
-*   [ ] **Why use Log Loss for classification?** Because it heavily penalizes confident wrong answers (e.g., predicting 0.99 probability for the wrong class).
+- **Are we predicting a number or a category?** This determines the output interpretation.
+- **Why does MSE fit regression?** Because numeric distance is meaningful.
+- **Why does cross-entropy fit classification?** Because probability assigned to the correct class is what matters.
+- **Why use logits in PyTorch losses?** Because the built-in loss functions combine activation and log calculations stably.

@@ -9,6 +9,7 @@
     "backpropagation",
     "introduction-to-tensors-and-pytorch",
     "training-execution",
+    "training-hyperparameters",
     "regression-vs-classification"
   ]
 }

@@ -1,0 +1,240 @@
+---
+title: Recurrent Neural Networks
+description: Giving a neural network memory over a sequence.
+---
+
+# Recurrent Neural Networks
+
+N-gram models remember text by storing counts of short histories.
+
+But language often needs more than a few previous words.
+
+Consider:
+
+```text
+The book that I borrowed from the library yesterday was ...
+```
+
+The word `"was"` agrees with `"book"`, not `"library"` or `"yesterday"`.
+
+An n-gram model may be distracted by whatever is nearby. A recurrent neural network tries a different strategy:
+
+**read the sequence one token at a time, carrying a hidden memory forward.**
+
+## The Loop
+
+An RNN has a repeating cell. At each time step, it receives:
+
+- the current input token
+- the hidden state from the previous time step
+
+Then it produces:
+
+- a new hidden state
+- optionally, an output prediction
+
+The hidden state is the model's working memory.
+
+For token $x_t$, previous hidden state $h_{t-1}$, and new hidden state $h_t$:
+
+$$
+h_t = \tanh(W_x x_t + W_h h_{t-1} + b)
+$$
+
+The output distribution might be:
+
+$$
+\hat{y}_t = \text{softmax}(W_y h_t + c)
+$$
+
+The same weights $W_x$, $W_h$, and $W_y$ are reused at every time step.
+
+That sharing is what lets the network process sequences of different lengths.
+
+### Symbol Dictionary
+
+| Symbol | Name | Meaning |
+| :--- | :--- | :--- |
+| $x_t$ | Input at time $t$ | The token representation currently being read. |
+| $h_t$ | Hidden state | The memory after reading token $t$. |
+| $h_{t-1}$ | Previous hidden state | The memory from the previous token. |
+| $W_x$ | Input weight matrix | Controls how the current token affects memory. |
+| $W_h$ | Recurrent weight matrix | Controls how old memory affects new memory. |
+| $\hat{y}_t$ | Prediction | The model's output at time $t$. |
+
+## Unrolling The RNN
+
+The loop can feel mysterious until you unroll it.
+
+Instead of drawing one cell pointing back to itself, draw the same cell repeated across time:
+
+```text
+x1 -> [RNN] -> h1 -> [RNN] -> h2 -> [RNN] -> h3
+       |              |              |
+      y1             y2             y3
+```
+
+It is the same network copied across positions.
+
+At $t=1$, the model reads the first token and creates $h_1$.
+
+At $t=2$, it reads the second token while also receiving $h_1$.
+
+At $t=3$, it reads the third token while receiving $h_2$.
+
+So information can, in principle, flow from early tokens to later tokens through the hidden state chain:
+
+$$
+h_1 \rightarrow h_2 \rightarrow h_3 \rightarrow \cdots \rightarrow h_T
+$$
+
+This is how an RNN gets memory.
+
+## A Tiny Example
+
+Imagine the sequence:
+
+```text
+I love machine learning
+```
+
+At the start, $h_0$ may be all zeros.
+
+After reading `"I"`, the hidden state might store that a subject has appeared.
+
+After reading `"love"`, it may store that we are in a positive statement.
+
+After reading `"machine"`, it may begin expecting `"learning"` because the phrase is common.
+
+After reading `"learning"`, the final hidden state summarizes the sequence.
+
+The important part is that the model is not storing exact counts like an n-gram table. It is learning a continuous vector memory.
+
+## Why Training Uses Backpropagation Through Time
+
+An RNN is trained with the same general tool as other neural networks: gradients.
+
+But because the same cell is used repeatedly across time, we must backpropagate through the unrolled computation graph.
+
+This is called **backpropagation through time**.
+
+If the loss at the final time step is $L_T$, then earlier hidden states influence it through a long chain:
+
+$$
+h_1 \rightarrow h_2 \rightarrow h_3 \rightarrow \cdots \rightarrow h_T \rightarrow L_T
+$$
+
+So the gradient for an early state contains many repeated Jacobian factors.
+
+In simplified form:
+
+$$
+\frac{\partial L_T}{\partial h_1}
+=
+\frac{\partial L_T}{\partial h_T}
+\frac{\partial h_T}{\partial h_{T-1}}
+\cdots
+\frac{\partial h_2}{\partial h_1}
+$$
+
+That line is only a shorthand for the path. The real expression uses matrix products:
+
+$$
+\frac{\partial L_T}{\partial h_1}
+=
+\frac{\partial L_T}{\partial h_T}
+\prod_{t=2}^{T}
+\frac{\partial h_t}{\partial h_{t-1}}
+$$
+
+The lesson is the same:
+
+long-distance learning requires gradients to survive many repeated transformations.
+
+## Vanishing Gradients
+
+The RNN's biggest problem is that gradients often shrink as they travel backward through many time steps.
+
+Suppose a local derivative repeatedly multiplies the gradient by something like $0.5$.
+
+After one step:
+
+$$
+0.5
+$$
+
+After five steps:
+
+$$
+0.5^5 = 0.03125
+$$
+
+After twenty steps:
+
+$$
+0.5^{20} \approx 0.000001
+$$
+
+The signal from faraway words becomes almost zero.
+
+That means the model may learn short-range patterns well but fail to learn long-range dependencies.
+
+This is why a basic RNN might remember `"machine learning"` but struggle with agreement across a long sentence.
+
+## Exploding Gradients
+
+The opposite can also happen.
+
+If repeated derivatives are larger than $1$, gradients can grow too large.
+
+For example:
+
+$$
+1.5^{20} \approx 3325
+$$
+
+This can make training unstable.
+
+Gradient clipping helps by limiting the maximum gradient norm, but it does not fully solve the memory problem.
+
+## LSTMs And GRUs
+
+Long Short-Term Memory networks and Gated Recurrent Units were designed to improve RNN memory.
+
+They add gates that decide:
+
+- what to keep
+- what to forget
+- what to write into memory
+- what to expose as output
+
+The main intuition is that a memory state should have a smoother path through time so useful information can survive longer.
+
+This helped a lot before transformers became dominant.
+
+## Why Transformers Replaced RNNs For Many NLP Tasks
+
+RNNs process tokens sequentially.
+
+Token $t$ cannot be fully processed until token $t - 1$ has been processed.
+
+That makes them harder to parallelize on modern hardware.
+
+Transformers avoid this by processing all positions at once and using attention to let any token directly look at any other token.
+
+Instead of forcing information to travel through:
+
+$$
+h_1 \rightarrow h_2 \rightarrow h_3 \rightarrow \cdots \rightarrow h_T
+$$
+
+attention can connect distant positions directly.
+
+That is the revolution.
+
+## Key Questions
+
+- **How do we give a network memory?** We carry a hidden state from one time step to the next.
+- **Why do gradients vanish?** Backpropagation through many repeated transformations can repeatedly multiply gradients by values smaller than $1$.
+- **Why are RNNs hard to parallelize?** Each time step depends on the hidden state from the previous time step.
+- **What did RNNs teach us?** Sequence models need a way to preserve useful context over time.

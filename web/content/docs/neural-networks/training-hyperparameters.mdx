@@ -1,0 +1,168 @@
+---
+title: Training Hyperparameters
+description: Learning rate, momentum, beta, and weight decay.
+---
+
+# Training Hyperparameters
+
+Weights and biases are **parameters**. The model learns them from data.
+
+Hyperparameters are different. They are choices we set from the outside to control how training behaves.
+
+Examples:
+
+- learning rate
+- momentum
+- weight decay
+
+They do not directly make predictions. They shape the learning process.
+
+## Learning Rate
+
+The **learning rate** controls how big each update step is.
+
+In simple gradient descent:
+
+$$
+\theta_{\text{new}}
+=
+\theta_{\text{old}} - \alpha \nabla L(\theta)
+$$
+
+Here $\alpha$ is the learning rate.
+
+Read it like this:
+
+> gradient tells the direction; learning rate decides the step size.
+
+If the learning rate is too small:
+
+- loss decreases very slowly
+- training takes too long
+- the model may look stuck even though it is improving
+
+If the learning rate is too large:
+
+- loss may jump around
+- training may diverge
+- the model may overshoot good solutions
+
+### When To Increase Or Decrease
+
+Increase learning rate when:
+
+- loss is decreasing smoothly but painfully slowly
+- gradients are healthy but updates are tiny
+- training makes almost no progress after many steps
+
+Decrease learning rate when:
+
+- loss explodes
+- loss jumps up and down wildly
+- validation performance becomes unstable
+- training improves at first, then keeps overshooting
+
+In practice, learning rate is usually the first hyperparameter to tune.
+
+## Momentum
+
+Momentum helps gradient descent remember its previous direction.
+
+Without momentum, each update only looks at the current gradient.
+
+With momentum, the optimizer keeps a moving update direction:
+
+$$
+v_t = \beta v_{t-1} + (1-\beta)g_t
+$$
+
+$$
+\theta_t = \theta_{t-1} - \alpha v_t
+$$
+
+Here:
+
+- $g_t$ is the current gradient
+- $v_t$ is the moving direction
+- $\beta$ controls how much past direction is remembered
+
+Momentum is useful when gradients are noisy or zigzag across a valley. It smooths the path and can speed movement in a consistent direction.
+
+## What Is Beta?
+
+Beta usually means a **memory factor**.
+
+If $\beta$ is close to $0$, the optimizer mostly trusts the current gradient.
+
+If $\beta$ is close to $1$, the optimizer remembers the past for longer.
+
+Common momentum value:
+
+$$
+\beta = 0.9
+$$
+
+This means the optimizer keeps a strong memory of previous update directions.
+
+### When To Adjust Momentum
+
+Increase momentum when:
+
+- updates are noisy
+- loss decreases but the path zigzags
+- training needs smoother movement through long valleys
+
+Decrease momentum when:
+
+- training overshoots repeatedly
+- the optimizer seems to keep moving in a bad direction
+- loss reacts too slowly after the gradient direction changes
+
+Most of the time, the default momentum value works well enough.
+
+## Weight Decay
+
+Weight decay discourages weights from becoming too large.
+
+It is a regularization hyperparameter.
+
+The rough idea is:
+
+$$
+\text{new loss} = \text{data loss} + \lambda \|\theta\|^2
+$$
+
+Here $\lambda$ controls how strongly large weights are punished.
+
+Increase weight decay when:
+
+- training accuracy is high but validation accuracy is poor
+- the model is overfitting
+- weights are becoming unnecessarily large
+
+Decrease weight decay when:
+
+- the model underfits
+- both training and validation performance are poor
+- the model seems too constrained
+
+## Quick Tuning Guide
+
+| Symptom | Likely Change |
+| :--- | :--- |
+| Loss decreases very slowly | Increase learning rate slightly |
+| Loss explodes or becomes `nan` | Decrease learning rate |
+| Loss zigzags heavily | Try momentum or lower learning rate |
+| Training good, validation bad | Add/increase weight decay |
+| Training and validation both bad | Train longer, improve model, or reduce regularization |
+| Training is noisy but not diverging | Try momentum or lower learning rate |
+
+## Key Idea
+
+Parameters are learned by the model.
+
+Hyperparameters are chosen by you to control learning.
+
+The most important habit is to change one thing at a time, watch the loss curves, and ask:
+
+> Is the model learning too slowly, too wildly, or memorizing too much?

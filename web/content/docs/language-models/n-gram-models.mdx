@@ -1,0 +1,231 @@
+---
+title: N-Gram Models
+description: Predicting the next word by counting what came before.
+---
+
+# N-Gram Models
+
+Before neural networks, attention heads, and giant transformers, language modeling had a wonderfully direct question:
+
+**If I know the last few words, what word usually comes next?**
+
+That is the whole spirit of an n-gram model. It does not understand meaning in a deep way. It does not build hidden representations. It simply counts patterns in text and converts those counts into probabilities.
+
+And that makes it the perfect first language model, because the goal of modern language models is still next-token prediction. The difference is how much context they can use, and how flexibly they can generalize.
+
+## The Basic Idea
+
+An **n-gram** is a sequence of $n$ tokens.
+
+- A unigram uses one token: `"learning"`
+- A bigram uses two tokens: `"machine learning"`
+- A trigram uses three tokens: `"deep learning models"`
+
+If we are building a bigram model, we estimate the next word using only the previous word.
+
+If we are building a trigram model, we estimate the next word using the previous two words.
+
+So the model is not asking:
+
+> What does this whole paragraph mean?
+
+It is asking:
+
+> In my training text, when this short history appeared, what usually followed it?
+
+## From Counts To Probabilities
+
+Suppose our tiny training corpus contains these sentences:
+
+```text
+machine learning is fun
+machine learning is useful
+machine learning needs data
+deep learning needs data
+```
+
+For a bigram model, we count word pairs.
+
+The pair `"machine learning"` appears $3$ times.
+
+The word `"machine"` appears as a history $3$ times.
+
+So:
+
+$$
+P(\text{learning} \mid \text{machine}) =
+\frac{\text{count}(\text{machine learning})}{\text{count}(\text{machine})}
+=
+\frac{3}{3}
+=
+1
+$$
+
+The pair `"learning is"` appears $2$ times.
+
+The word `"learning"` appears as a history $4$ times.
+
+So:
+
+$$
+P(\text{is} \mid \text{learning}) =
+\frac{\text{count}(\text{learning is})}{\text{count}(\text{learning})}
+=
+\frac{2}{4}
+=
+0.5
+$$
+
+This is next-word prediction built entirely from counting.
+
+## The General Formula
+
+For a bigram model:
+
+$$
+P(w_t \mid w_{t-1}) =
+\frac{\text{count}(w_{t-1}, w_t)}{\text{count}(w_{t-1})}
+$$
+
+For a trigram model:
+
+$$
+P(w_t \mid w_{t-2}, w_{t-1}) =
+\frac{\text{count}(w_{t-2}, w_{t-1}, w_t)}
+{\text{count}(w_{t-2}, w_{t-1})}
+$$
+
+The notation says:
+
+Given the recent history, estimate how likely each possible next word is.
+
+### Symbol Dictionary
+
+| Symbol | Name | Meaning |
+| :--- | :--- | :--- |
+| $w_t$ | Current token | The token we want to predict. |
+| $w_{t-1}$ | Previous token | The token immediately before $w_t$. |
+| $P(w_t \mid w_{t-1})$ | Conditional probability | The probability of $w_t$ given the previous token. |
+| $\text{count}(\cdot)$ | Count function | How often a token pattern appears in the corpus. |
+| $n$ | N-gram length | The number of tokens in the remembered pattern. |
+
+## Why This Works At All
+
+Language is full of local regularities.
+
+After `"New"`, the word `"York"` is much more likely than `"sandwich"`.
+
+After `"machine"`, the word `"learning"` is much more likely than `"banana"`.
+
+After `"once upon a"`, the word `"time"` is extremely likely.
+
+An n-gram model captures these local habits. It is a statistical memory of phrases.
+
+That is already enough to generate text that looks locally plausible:
+
+```text
+machine learning is useful
+learning needs data
+deep learning needs data
+```
+
+But it will struggle with meaning, long-range structure, and rare phrases.
+
+## The Context Window Problem
+
+A bigram model only remembers one previous token.
+
+A trigram model remembers two previous tokens.
+
+In general, an n-gram model remembers $n - 1$ previous tokens.
+
+That creates an immediate tradeoff.
+
+Small $n$:
+
+- easy to count
+- many examples for each history
+- weak context
+
+Large $n$:
+
+- more context
+- more specific predictions
+- many histories never appear in training
+
+This second problem is called **sparsity**.
+
+For example, maybe the training set contains:
+
+```text
+the model predicts the next token
+```
+
+but never contains:
+
+```text
+the small model predicts
+```
+
+A trigram model can recognize parts of that phrase. A 5-gram model may see a history that never appeared and assign it probability zero.
+
+That is too brittle.
+
+## Smoothing
+
+If a model assigns zero probability to every unseen phrase, it becomes unusable very quickly.
+
+Smoothing fixes this by giving a little probability mass to unseen events.
+
+The simplest version is add-one smoothing:
+
+$$
+P(w_t \mid h) =
+\frac{\text{count}(h, w_t) + 1}
+{\text{count}(h) + V}
+$$
+
+Here $h$ means the history, and $V$ is the vocabulary size.
+
+The $+1$ prevents zero probabilities.
+
+The $+V$ keeps the total probability distribution normalized because we added one possible count for every vocabulary word.
+
+This is not always the best smoothing method, but it teaches the central idea:
+
+> A language model must handle things it has not seen exactly before.
+
+## Why N-Grams Matter For Neural Language Models
+
+N-gram models reveal the core language-modeling task in its cleanest form.
+
+Given tokens:
+
+$$
+w_1, w_2, \ldots, w_{t-1}
+$$
+
+predict:
+
+$$
+w_t
+$$
+
+Modern neural language models do the same thing, but they replace exact counting with learned representations.
+
+Instead of asking:
+
+> How many times did this exact phrase appear?
+
+they ask:
+
+> What patterns in the context suggest what should come next?
+
+That lets them generalize from related examples. If a model has learned that `"Paris is the capital of France"` and `"Tokyo is the capital of Japan"` share a structure, it can reason beyond exact repeated n-grams.
+
+## Key Questions
+
+- **How much can we predict just by counting word pairs?** More than you might expect for local phrases, but not enough for deep meaning or long-range structure.
+- **What does an n-gram model remember?** Only the previous $n - 1$ tokens.
+- **Why do n-gram models fail with large context?** The number of possible histories explodes, so most exact histories are rare or unseen.
+- **What idea survives into modern LLMs?** Predicting the next token from previous context.
