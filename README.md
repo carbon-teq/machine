@@ -1,5 +1,3 @@
-# ML Teaching Site
-
 This repository contains teaching materials, interactive notebooks, Manim scenes, and a small web frontend that together form a learning environment for core machine learning and mathematics concepts.
 
 **What’s in this repo**
